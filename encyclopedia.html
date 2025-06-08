@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, overscroll-behavior=none">
+    <title>Meme Encyclopedia - Meme Clicker Tycoon</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Montserrat:wght@400;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Encyclopedia specific styles */
+        .encyclopedia-container {
+            position: relative;
+            padding-bottom: 80px;
+        }
+
+        .encyclopedia-header {
+            background: linear-gradient(135deg, #a4c639 0%, #87b633 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .encyclopedia-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            margin: 0;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+        }
+
+        .encyclopedia-subtitle {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .encyclopedia-content {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .encyclopedia-intro {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px dashed #f0f0f0;
+        }
+
+        .encyclopedia-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .encyclopedia-category {
+            background: #f9f9f9;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            border-left: 4px solid #a4c639;
+            transition: transform 0.3s ease;
+        }
+
+        .encyclopedia-category:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .encyclopedia-category h3 {
+            color: #ff6b6b;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-family: 'Fredoka One', cursive;
+        }
+
+        .encyclopedia-category ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .encyclopedia-category li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-weight: 500;
+        }
+
+        .encyclopedia-category li:last-child {
+            border-bottom: none;
+        }
+
+        .encyclopedia-featured {
+            background: linear-gradient(to bottom right, #fff6e5, #fffbeb);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            border-left: 4px solid #ffcc00;
+        }
+
+        .encyclopedia-featured h3 {
+            color: #ff6b6b;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-family: 'Fredoka One', cursive;
+        }
+
+        .featured-meme-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .featured-meme-item {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .featured-meme-item:hover {
+            transform: scale(1.03);
+        }
+
+        .featured-meme-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            background: #ffcc00;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .featured-meme-details h4 {
+            margin: 0 0 5px 0;
+            color: #333;
+        }
+
+        .featured-meme-details p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .encyclopedia-meme-origins {
+            background: #f0f8ff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            border-left: 4px solid #66a6ff;
+        }
+
+        .encyclopedia-meme-origins h3 {
+            color: #ff6b6b;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-family: 'Fredoka One', cursive;
+        }
+
+        .origin-timeline {
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .origin-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #66a6ff;
+            border-radius: 3px;
+        }
+
+        .origin-point {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .origin-point::before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #66a6ff;
+            border-radius: 50%;
+            left: -24px;
+            top: 5px;
+        }
+
+        .origin-date {
+            font-weight: bold;
+            color: #66a6ff;
+            margin-bottom: 5px;
+        }
+
+        .origin-description h4 {
+            margin: 0 0 5px 0;
+            color: #333;
+        }
+
+        .origin-description p {
+            margin: 0;
+            color: #666;
+        }
+
+        .encyclopedia-meme-science {
+            background: #f9f4ff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            border-left: 4px solid #9966ff;
+        }
+
+        .encyclopedia-meme-science h3 {
+            color: #ff6b6b;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-family: 'Fredoka One', cursive;
+        }
+
+        .science-insights {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .science-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .science-card h4 {
+            margin: 0 0 10px 0;
+            color: #9966ff;
+        }
+
+        .science-card ol, .science-card ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .science-card li {
+            margin-bottom: 5px;
+        }
+
+        .encyclopedia-global-impact {
+            background: #fff4f4;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .encyclopedia-global-impact h3 {
+            color: #ff6b6b;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-family: 'Fredoka One', cursive;
+        }
+
+        .impact-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+
+        .stat-label {
+            margin-top: 5px;
+            color: #666;
+        }
+
+        .encyclopedia-footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            color: #666;
+        }
+
+        .return-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #a4c639;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .return-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+        }
+
+        .return-button:active {
+            transform: translateY(1px);
+        }
+
+        @media (max-width: 767px) {
+            .encyclopedia-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .science-insights {
+                grid-template-columns: 1fr;
+            }
+
+            .encyclopedia-title {
+                font-size: 2rem;
+            }
+
+            .return-button {
+                font-size: 0.9rem;
+                padding: 10px 20px;
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="encyclopedia-container">
+        <div class="encyclopedia-header">
+            <h1 class="encyclopedia-title">Meme Encyclopedia</h1>
+            <p class="encyclopedia-subtitle">The Ultimate Guide to Internet Culture</p>
+        </div>
+
+        <div class="encyclopedia-content">
+            <section class="encyclopedia-intro">
+                <h2>Welcome to the Definitive Meme Compendium</h2>
+                <p>Dive deep into the world of internet culture, viral sensations, and the art of digital humor. This encyclopedia is your ultimate guide to understanding and appreciating memes!</p>
+            </section>
+
+            <div class="encyclopedia-grid">
+                <div class="encyclopedia-category">
+                    <h3>Meme Categories</h3>
+                    <ul>
+                        <li>Animal Memes</li>
+                        <li>Pop Culture Memes</li>
+                        <li>Reaction Memes</li>
+                        <li>Video Game Memes</li>
+                        <li>Movie & TV Memes</li>
+                        <li>Sports Memes</li>
+                        <li>Political Memes</li>
+                        <li>Wholesome Memes</li>
+                    </ul>
+                </div>
+
+                <div class="encyclopedia-featured">
+                    <h3>Featured Memes</h3>
+                    <div class="featured-meme-list">
+                        <div class="featured-meme-item">
+                            <div class="featured-meme-icon">🐶</div>
+                            <div class="featured-meme-details">
+                                <h4>Doge</h4>
+                                <p>A Shiba Inu dog with internal monologue in Comic Sans</p>
+                            </div>
+                        </div>
+                        <div class="featured-meme-item">
+                            <div class="featured-meme-icon">🐱</div>
+                            <div class="featured-meme-details">
+                                <h4>Grumpy Cat</h4>
+                                <p>Perpetually displeased feline that captured the internet's heart</p>
+                            </div>
+                        </div>
+                        <div class="featured-meme-item">
+                            <div class="featured-meme-icon">💃</div>
+                            <div class="featured-meme-details">
+                                <h4>Dancing Doge</h4>
+                                <p>Dancing meme that combines viral dance with adorable dog</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="encyclopedia-meme-origins">
+                    <h3>Meme Origins & Evolution</h3>
+                    <div class="origin-timeline">
+                        <div class="origin-point">
+                            <div class="origin-date">1976</div>
+                            <div class="origin-description">
+                                <h4>Term "Meme" Coined</h4>
+                                <p>Richard Dawkins introduces the term in "The Selfish Gene", describing cultural transmission similar to gene propagation.</p>
+                            </div>
+                        </div>
+                        <div class="origin-point">
+                            <div class="origin-date">1990s</div>
+                            <div class="origin-description">
+                                <h4>Early Internet Memes</h4>
+                                <p>ASCII art and early forum jokes become precursors to modern memes.</p>
+                            </div>
+                        </div>
+                        <div class="origin-point">
+                            <div class="origin-date">2000s</div>
+                            <div class="origin-description">
+                                <h4>Viral Image Macros</h4>
+                                <p>Websites like YTMND and 4chan popularize image-based memes.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="encyclopedia-meme-science">
+                    <h3>Meme Science 🧠</h3>
+                    <div class="science-insights">
+                        <div class="science-card">
+                            <h4>Meme Lifecycle</h4>
+                            <ol>
+                                <li>Creation</li>
+                                <li>Sharing</li>
+                                <li>Peak Virality</li>
+                                <li>Normalization</li>
+                                <li>Decline</li>
+                            </ol>
+                        </div>
+                        <div class="science-card">
+                            <h4>Meme Transmission Factors</h4>
+                            <ul>
+                                <li>Humor</li>
+                                <li>Relatability</li>
+                                <li>Novelty</li>
+                                <li>Shareability</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="encyclopedia-global-impact">
+                    <h3>Global Meme Impact</h3>
+                    <p>Memes have become a universal language of internet communication, transcending cultural and linguistic barriers. They serve as social commentary, entertainment, and a form of digital art.</p>
+                    <div class="impact-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">1B+</span>
+                            <span class="stat-label">Daily Meme Shares</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">200+</span>
+                            <span class="stat-label">Meme Formats Known</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="encyclopedia-footer">
+            <p>🤖 Meme Clicker Tycoon Encyclopedia - Your Gateway to Internet Culture 🌈</p>
+        </footer>
+        
+        <button class="return-button" onclick="returnToGame()">Return to Game</button>
+    </div>
+    
+    <script>
+        function returnToGame() {
+            // Set flag in localStorage to show loading screen when returning to game
+            localStorage.setItem('returningToGame', 'true');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

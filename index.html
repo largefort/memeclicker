@@ -1,0 +1,704 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, overscroll-behavior=none">
+    <title>Meme Clicker: Android Remastered Edition</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Montserrat:wght@400;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>
+        // Enable high performance mode to stabilize FPS
+        if ('paintWorklet' in CSS) {
+            CSS.paintWorklet.addModule('https://www.unpkg.com/css-paint-polyfill');
+        }
+    </script>
+    
+    <!-- UI SVG Decoration Patterns -->
+    <svg width="0" height="0" style="position:absolute;">
+        <!-- Header Pattern -->
+        <pattern id="header-pattern" patternUnits="userSpaceOnUse" width="60" height="60" patternTransform="scale(0.5) rotate(0)">
+            <path d="M0 0h60v60H0z" fill="#ffffff" fill-opacity="0.05"/>
+            <path d="M15 15L45 45M45 15L15 45" stroke="#ffcc00" stroke-width="2" stroke-opacity="0.2"/>
+            <circle cx="30" cy="30" r="5" fill="#ff6b6b" fill-opacity="0.15"/>
+        </pattern>
+        
+        <!-- Tab Button Pattern -->
+        <pattern id="tab-pattern" patternUnits="userSpaceOnUse" width="40" height="40" patternTransform="scale(0.5)">
+            <path d="M0 0h40v40H0z" fill="none"/>
+            <circle cx="20" cy="20" r="2" fill="#a4c639" fill-opacity="0.2"/>
+            <circle cx="0" cy="0" r="2" fill="#a4c639" fill-opacity="0.2"/>
+            <circle cx="40" cy="0" r="2" fill="#a4c639" fill-opacity="0.2"/>
+            <circle cx="0" cy="40" r="2" fill="#a4c639" fill-opacity="0.2"/>
+            <circle cx="40" cy="40" r="2" fill="#a4c639" fill-opacity="0.2"/>
+        </pattern>
+        
+        <!-- Building Card Pattern -->
+        <pattern id="building-pattern" patternUnits="userSpaceOnUse" width="60" height="60" patternTransform="scale(0.5)">
+            <path d="M0 0h60v60H0z" fill="none"/>
+            <path d="M0 15h60M0 30h60M0 45h60" stroke="#000" stroke-width="0.5" stroke-opacity="0.07"/>
+            <path d="M15 0v60M30 0v60M45 0v60" stroke="#000" stroke-width="0.5" stroke-opacity="0.07"/>
+        </pattern>
+        
+        <!-- Stats Box Pattern -->
+        <pattern id="stats-pattern" patternUnits="userSpaceOnUse" width="50" height="50" patternTransform="scale(0.5)">
+            <path d="M0 0h50v50H0z" fill="none"/>
+            <path d="M0 0l50 50M50 0L0 50" stroke="#ff6b6b" stroke-width="0.5" stroke-opacity="0.1"/>
+        </pattern>
+        
+        <!-- Clicker Area Pattern -->
+        <pattern id="clicker-pattern" patternUnits="userSpaceOnUse" width="80" height="80" patternTransform="scale(0.5)">
+            <path d="M0 0h80v80H0z" fill="none"/>
+            <circle cx="40" cy="40" r="30" stroke="#ffcc00" stroke-width="1" stroke-opacity="0.1" fill="none"/>
+            <circle cx="40" cy="40" r="20" stroke="#ffcc00" stroke-width="1" stroke-opacity="0.1" fill="none"/>
+            <circle cx="40" cy="40" r="10" stroke="#ffcc00" stroke-width="1" stroke-opacity="0.1" fill="none"/>
+        </pattern>
+        
+        <!-- Wave Pattern for Dividers -->
+        <pattern id="wave-pattern" patternUnits="userSpaceOnUse" width="100" height="20" patternTransform="scale(1)">
+            <path d="M0 10 Q 12.5 0, 25 10 Q 37.5 20, 50 10 Q 62.5 0, 75 10 Q 87.5 20, 100 10" fill="none" stroke="#a4c639" stroke-width="1" stroke-opacity="0.2"/>
+        </pattern>
+        
+        <!-- Dot Grid Pattern -->
+        <pattern id="dot-pattern" patternUnits="userSpaceOnUse" width="20" height="20" patternTransform="scale(0.5)">
+            <circle cx="10" cy="10" r="1" fill="#000" fill-opacity="0.1"/>
+        </pattern>
+        
+        <!-- Meme Haven Pattern -->
+        <pattern id="heaven-pattern" patternUnits="userSpaceOnUse" width="70" height="70" patternTransform="scale(0.5)">
+            <path d="M0 0h70v70H0z" fill="none"/>
+            <path d="M35 10L40 25L55 25L45 35L50 50L35 40L20 50L25 35L15 25L30 25L35 10Z" fill="#a4c639" fill-opacity="0.08"/>
+        </pattern>
+    </svg>
+</head>
+<body>
+    <div id="autosave-indicator" class="autosave-indicator">Autosaving...</div>
+    <div id="title-screen" class="title-screen active">
+        <div class="title-content">
+            <div class="title-logo">
+                <div class="logo-meme">
+                    <svg viewBox="0 0 100 100" class="title-meme-icon">
+                        <circle cx="50" cy="50" r="45" fill="#FFDE00" />
+                        <defs>
+                            <linearGradient id="eyeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#FFFFFF" />
+                                <stop offset="100%" stop-color="#E0E0E0" />
+                            </linearGradient>
+                            <!-- Add glass gradient for sunglasses -->
+                            <linearGradient id="glassGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#222" />
+                                <stop offset="50%" stop-color="#444" />
+                                <stop offset="100%" stop-color="#111" />
+                            </linearGradient>
+                        </defs>
+                        
+                        <!-- Sunglasses (now permanent) -->
+                        <g class="permanent-sunglasses">
+                            <rect x="25" y="36" width="20" height="10" rx="2" fill="url(#glassGradient)" class="left-lens" />
+                            <rect x="55" y="36" width="20" height="10" rx="2" fill="url(#glassGradient)" class="right-lens" />
+                            <path d="M45 41 L55 41" stroke="#111" stroke-width="2" />
+                            <path d="M23 39 L18 34" stroke="#111" stroke-width="2" />
+                            <path d="M77 39 L82 34" stroke="#111" stroke-width="2" />
+                        </g>
+                        
+                        <!-- Smile -->
+                        <path d="M30 65 Q50 85 70 65" stroke="#000" stroke-width="4" fill="none" stroke-linecap="round" />
+                        
+                        <!-- Blush spots -->
+                        <circle cx="25" cy="55" r="5" fill="#FF9999" opacity="0.6" />
+                        <circle cx="75" cy="55" r="5" fill="#FF9999" opacity="0.6" />
+                    </svg>
+                </div>
+                <h1 class="title-game-name">
+                    Meme Clicker
+                    <span class="title-game-subtitle">Remastered</span>
+                </h1>
+                <div class="android-badge">
+                    <div class="android-icon">🤖</div>
+                    <span>Android Edition</span>
+                </div>
+            </div>
+            <div class="title-buttons">
+                <button id="start-game-btn" class="start-game-button">START GAME</button>
+                <div class="game-version">v1.0 - Tap to make memes!</div>
+            </div>
+        </div>
+        <div class="floating-memes">
+            <div class="floating-meme" style="--delay: 0s; --size: 3rem; --left: 10%; --duration: 8s;">😂</div>
+            <div class="floating-meme" style="--delay: 2s; --size: 2.5rem; --left: 25%; --duration: 10s;">🔥</div>
+            <div class="floating-meme" style="--delay: 4s; --size: 3.5rem; --left: 40%; --duration: 9s;">💯</div>
+            <div class="floating-meme" style="--delay: 1s; --size: 2rem; --left: 60%; --duration: 11s;">👌</div>
+            <div class="floating-meme" style="--delay: 3s; --size: 2.8rem; --left: 75%; --duration: 7s;">🤣</div>
+            <div class="floating-meme" style="--delay: 5s; --size: 3.2rem; --left: 85%; --duration: 10s;">💪</div>
+        </div>
+    </div>
+
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-meme">
+                <svg viewBox="0 0 100 100" class="loading-meme-icon">
+                    <circle cx="50" cy="50" r="45" fill="#FFDE00" />
+                    <defs>
+                        <linearGradient id="eyeGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FFFFFF" />
+                            <stop offset="100%" stop-color="#E0E0E0" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Left eye -->
+                    <ellipse cx="35" cy="40" rx="8" ry="9" fill="url(#eyeGradient2)" />
+                    <ellipse cx="35" cy="40" rx="4" ry="5" fill="#000" />
+                    <circle cx="33" cy="38" r="2" fill="#FFFFFF" />
+                    
+                    <!-- Right eye -->
+                    <ellipse cx="65" cy="40" rx="8" ry="9" fill="url(#eyeGradient2)" />
+                    <ellipse cx="65" cy="40" rx="4" ry="5" fill="#000" />
+                    <circle cx="63" cy="38" r="2" fill="#FFFFFF" />
+                    
+                    <!-- Smile changing to loading animation -->
+                    <path d="M30 65 Q50 85 70 65" stroke="#000" stroke-width="4" fill="none" stroke-linecap="round" class="loading-smile" />
+                    
+                    <!-- Loading dots -->
+                    <circle cx="30" cy="65" r="4" fill="#000" class="loading-dot dot1" />
+                    <circle cx="50" cy="70" r="4" fill="#000" class="loading-dot dot2" />
+                    <circle cx="70" cy="65" r="4" fill="#000" class="loading-dot dot3" />
+                </svg>
+            </div>
+            <div class="loading-text">Loading Memes...</div>
+            <div class="loading-progress-container">
+                <div class="loading-progress-bar"></div>
+            </div>
+            <div class="loading-tips">
+                <p class="loading-tip">Tip: The more buildings you buy, the more memes you make!</p>
+            </div>
+        </div>
+        <div class="loading-meme-rain">
+            <div class="rain-meme">🔥</div>
+            <div class="rain-meme">😂</div>
+            <div class="rain-meme">👌</div>
+            <div class="rain-meme">💯</div>
+            <div class="rain-meme">🤣</div>
+            <div class="rain-meme">🔥</div>
+            <div class="rain-meme">😂</div>
+            <div class="rain-meme">👌</div>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <header>
+            <!-- Adding optional FPS counter display (commented out by default) -->
+            <!-- <div id="fps-counter" class="fps-counter">60</div> -->
+            <h1>
+                Meme Clicker Remastered
+                <span class="android-edition-tag">Android Edition</span>
+            </h1>
+            <div class="stats">
+                <div class="meme-count">
+                    <span id="meme-counter">0</span> memes
+                </div>
+                <div class="memes-per-second">
+                    <span id="mps-counter">0</span> memes/sec
+                </div>
+            </div>
+            <nav class="game-tabs">
+                <button class="tab-button active" data-tab="main-game">Main Game</button>
+                <button class="tab-button" data-tab="buildings">Buildings</button>
+                <button class="tab-button" data-tab="meme-haven">Meme Haven</button>
+                <button class="tab-button" data-tab="statistics">Statistics</button>
+                <button class="tab-button" data-tab="history">History</button>
+                <button class="tab-button" data-tab="mini-games">Mini Games</button>
+                <button class="tab-button" data-tab="settings">Settings</button>
+            </nav>
+        </header>
+
+        <div id="main-game" class="tab-content active">
+            <main>
+                <div class="clicker-area">
+                    <div class="meme-button" id="meme-button">
+                        <svg viewBox="0 0 100 100" class="meme-icon">
+                            <circle cx="50" cy="50" r="45" fill="#FFDE00" />
+                            <defs>
+                                <linearGradient id="eyeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#FFFFFF" />
+                                    <stop offset="100%" stop-color="#E0E0E0" />
+                                </linearGradient>
+                                <!-- Add glass gradient for sunglasses -->
+                                <linearGradient id="glassGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#222" />
+                                    <stop offset="50%" stop-color="#444" />
+                                    <stop offset="100%" stop-color="#111" />
+                                </linearGradient>
+                            </defs>
+                            
+                            <!-- Sunglasses (now permanent) -->
+                            <g class="permanent-sunglasses">
+                                <rect x="25" y="36" width="20" height="10" rx="2" fill="url(#glassGradient)" class="left-lens" />
+                                <rect x="55" y="36" width="20" height="10" rx="2" fill="url(#glassGradient)" class="right-lens" />
+                                <path d="M45 41 L55 41" stroke="#111" stroke-width="2" />
+                                <path d="M23 39 L18 34" stroke="#111" stroke-width="2" />
+                                <path d="M77 39 L82 34" stroke="#111" stroke-width="2" />
+                            </g>
+                            
+                            <!-- Smile -->
+                            <path d="M30 65 Q50 85 70 65" stroke="#000" stroke-width="4" fill="none" stroke-linecap="round" />
+                            
+                            <!-- Blush spots -->
+                            <circle cx="25" cy="55" r="5" fill="#FF9999" opacity="0.6" />
+                            <circle cx="75" cy="55" r="5" fill="#FF9999" opacity="0.6" />
+                        </svg>
+                        <div class="click-effect" id="click-effect"></div>
+                    </div>
+                    <div class="boost-container">
+                        <button id="boost-button" class="boost-button">Activate 2x Boost</button>
+                        <div id="boost-timer" class="boost-timer"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <div id="buildings" class="tab-content">
+            <div class="buildings-container">
+                <h2>Meme Generators</h2>
+                <div class="buildings-info">
+                    <div class="building-total">Total buildings: <span id="buildings-total">0</span></div>
+                    <div class="building-mps">Total production: <span id="buildings-mps">0</span> memes/sec</div>
+                </div>
+                <div class="buildings-grid" id="buildings-grid">
+                    <!-- Buildings will be added here by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <div id="meme-haven" class="tab-content">
+            <div class="meme-haven-container">
+                <h2>Meme Haven - Prestige</h2>
+                <div class="meme-heaven-info">
+                    <p class="meme-haven-description">Ascend to Meme Haven and reset your progress for permanent bonuses!</p>
+                    <div class="meme-haven-stats">
+                        <div class="heavenly-meme-counter">
+                            <span>Heavenly Memes: <span id="heavenly-memes">0</span></span>
+                            <div class="tooltip">Increases all meme production permanently</div>
+                        </div>
+                        <div class="potential-memes">
+                            <span>Ascension will grant: <span id="potential-heavenly-memes">0</span> Heavenly Memes</span>
+                        </div>
+                        <div class="meme-multiplier">
+                            <span>Current Bonus: <span id="heavenly-multiplier">+0%</span> to all meme production</span>
+                        </div>
+                    </div>
+                    
+                    <div class="prestige-requirements">
+                        <p class="requirement-text">You need at least <span id="min-memes-ascend">1,000,000</span> lifetime memes to ascend</p>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="ascension-progress"></div>
+                        </div>
+                    </div>
+                    
+                    <button id="ascend-button" class="ascend-button" disabled>Ascend to Meme Haven</button>
+                    
+                    <div class="meme-haven-warning" id="ascension-warning">
+                        <p>WARNING: Ascending will reset all your memes, buildings, and upgrades!</p>
+                        <p>You will keep: achievements and heavenly memes.</p>
+                        <div class="ascension-confirm">
+                            <button id="confirm-ascend" class="confirm-ascend-button">Yes, Ascend!</button>
+                            <button id="cancel-ascend" class="cancel-ascend-button">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="statistics" class="tab-content">
+            <div class="stats-container">
+                <h2>Meme Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <h3>Meme Production</h3>
+                        <p>Total Memes Created: <span id="stat-total-memes">0</span></p>
+                        <p>Memes Clicked: <span id="stat-clicked-memes">0</span></p>
+                        <p>Memes from Generators: <span id="stat-generated-memes">0</span></p>
+                    </div>
+                    <div class="stat-box">
+                        <h3>Buildings</h3>
+                        <div id="building-stats">
+                            <!-- Building stats will be added here -->
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <h3>Memechievements</h3>
+                        <div id="achievement-stats">
+                            <!-- Achievement stats will be added here -->
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <h3>Session Info</h3>
+                        <p>Time Played: <span id="stat-time-played">0:00:00</span></p>
+                        <p>Memes per Click: <span id="stat-memes-per-click">1</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="history" class="tab-content">
+            <div class="history-container">
+                <h2>The History of Memes</h2>
+                <p class="history-intro">Discover the fascinating origins and evolution of memes throughout human history.</p>
+                
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-date">1921</div>
+                        <div class="timeline-content">
+                            <h3>Proto-Memes</h3>
+                            <p>Before the term existed, "Kilroy Was Here" graffiti appeared during World War II, featuring a simple drawing of a bald man peeking over a wall. It became one of the earliest viral cultural phenomena.</p>
+                            <div class="history-meme">✍️ Kilroy Was Here</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">1976</div>
+                        <div class="timeline-content">
+                            <h3>Origin of the Term "Meme"</h3>
+                            <p>Richard Dawkins coined the term "meme" in his book "The Selfish Gene." He described memes as ideas, behaviors, or styles that spread from person to person within a culture, similar to how genes spread in a population.</p>
+                            <div class="history-quote">"We need a name for the new replicator, a noun that conveys the idea of a unit of cultural transmission, or a unit of imitation."</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">1980s</div>
+                        <div class="timeline-content">
+                            <h3>Early Internet Culture</h3>
+                            <p>Before the web became widespread, early internet communities on Usenet and BBS systems shared humor through ASCII art and recurring jokes, forming the earliest digital memes.</p>
+                            <div class="history-meme">ʕ•ᴥ•ʔ ASCII art</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">1996</div>
+                        <div class="timeline-content">
+                            <h3>Dancing Baby</h3>
+                            <p>One of the first viral internet memes, this 3D-rendered animation of a baby dancing to "Hooked on a Feeling" by Blue Swede spread widely through email chains and was featured on the TV show "Ally McBeal."</p>
+                            <div class="history-meme">👶 Dancing Baby</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">1998</div>
+                        <div class="timeline-content">
+                            <h3>Hampster Dance</h3>
+                            <p>A webpage featuring rows of animated GIF hampsters dancing to a sped-up version of "Whistle Stop" from Disney's Robin Hood. The site went viral and was one of the earliest examples of an internet fad.</p>
+                            <div class="history-meme">🐹 Hampster Dance</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2001</div>
+                        <div class="timeline-content">
+                            <h3>All Your Base Are Belong To Us</h3>
+                            <p>Poor translation from the Japanese game "Zero Wing" became an internet phenomenon with the phrase appearing in modified images, videos, and flash animations across the web.</p>
+                            <div class="history-meme">🎮 All Your Base</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2003</div>
+                        <div class="timeline-content">
+                            <h3>Star Wars Kid</h3>
+                            <p>A video of a teenager awkwardly wielding a golf ball retriever like a lightsaber became one of the first viral videos, predating YouTube and spreading through file-sharing networks.</p>
+                            <div class="history-meme">⚔️ Star Wars Kid</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2004</div>
+                        <div class="timeline-content">
+                            <h3>Numa Numa</h3>
+                            <p>Gary Brolsma's webcam performance to "Dragostea Din Tei" by O-Zone became a massive viral hit, demonstrating the emerging power of amateur video content online.</p>
+                            <div class="history-meme">🎤 Numa Numa Guy</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2005</div>
+                        <div class="timeline-content">
+                            <h3>Flash Era</h3>
+                            <p>Flash animations like "Badger Badger Badger" by Weebl showed the potential for internet culture to spread quickly across the web. YouTube's launch this year would revolutionize video sharing.</p>
+                            <div class="history-meme">🦡 Badger Badger Badger</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2006</div>
+                        <div class="timeline-content">
+                            <h3>Early YouTube Memes</h3>
+                            <p>"Evolution of Dance" and "Chocolate Rain" emerged as YouTube's early viral sensations, showcasing the platform's power for creating cultural phenomena.</p>
+                            <div class="history-meme">🍫 Chocolate Rain</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2007</div>
+                        <div class="timeline-content">
+                            <h3>Rickrolling Begins</h3>
+                            <p>The bait-and-switch meme of unexpectedly linking people to Rick Astley's "Never Gonna Give You Up" music video began on 4chan and became one of the internet's most enduring pranks.</p>
+                            <div class="history-meme">🎤 Rick Astley</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2008</div>
+                        <div class="timeline-content">
+                            <h3>Image Board Era</h3>
+                            <p>Sites like 4chan became birthplaces for many iconic memes. LOLcats emerged with the "I Can Has Cheezburger?" blog, introducing a new format of animal images with broken English captions.</p>
+                            <div class="history-meme">🐱 LOLcats</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2009</div>
+                        <div class="timeline-content">
+                            <h3>Advice Animals</h3>
+                            <p>Image macros featuring animals and other characters giving stereotypical advice began to populate Reddit and 4chan, including Courage Wolf, Insanity Wolf, and Socially Awkward Penguin.</p>
+                            <div class="history-meme">🐺 Advice Animals</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2010</div>
+                        <div class="timeline-content">
+                            <h3>Rage Comics</h3>
+                            <p>Simple comics using a set of expressive faces to tell relatable stories of frustration and humor gained massive popularity on Reddit and other platforms.</p>
+                            <div class="history-meme">😡 Rage Guy (FFFFFFFUUUUUUUUUUUU)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2011</div>
+                        <div class="timeline-content">
+                            <h3>Nyan Cat</h3>
+                            <p>A cat with a Pop-Tart body flying through space with a rainbow trail set to Japanese pop music became an internet sensation and inspired countless remixes.</p>
+                            <div class="history-meme">🌈 Nyan Cat</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2012</div>
+                        <div class="timeline-content">
+                            <h3>Gangnam Style</h3>
+                            <p>PSY's music video became the first YouTube video to reach one billion views, demonstrating the global reach of meme culture and leading YouTube to update their view counter.</p>
+                            <div class="history-meme">🐎 Gangnam Style Dance</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2013</div>
+                        <div class="timeline-content">
+                            <h3>Doge</h3>
+                            <p>A Shiba Inu dog paired with colorful Comic Sans text in broken English ("such wow", "very amaze") became one of the decade's most recognizable memes, eventually inspiring a cryptocurrency.</p>
+                            <div class="history-meme">🐕 Such Doge</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2014</div>
+                        <div class="timeline-content">
+                            <h3>Ice Bucket Challenge</h3>
+                            <p>A viral challenge where people dumped ice water on themselves to raise awareness for ALS became a global phenomenon, showing how memes could drive social causes.</p>
+                            <div class="history-meme">🧊 Ice Bucket Challenge</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2015</div>
+                        <div class="timeline-content">
+                            <h3>Vine's Golden Age</h3>
+                            <p>The six-second video platform Vine reached its peak popularity, creating a new form of rapid-fire comedy and launching phrases like "What Are Those?" and "Why You Always Lying?"</p>
+                            <div class="history-meme">🎬 What Are Those?!</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2016</div>
+                        <div class="timeline-content">
+                            <h3>Harambe</h3>
+                            <p>After a gorilla was killed at the Cincinnati Zoo, Harambe became the subject of endless memes that demonstrated the internet's ability to sustain and transform an event into a cultural touchpoint.</p>
+                            <div class="history-meme">🦍 Harambe</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2017</div>
+                        <div class="timeline-content">
+                            <h3>Distracted Boyfriend</h3>
+                            <p>A stock photo of a man checking out another woman while with his girlfriend became a versatile template for expressing divided attention or betrayal.</p>
+                            <div class="history-meme">👀 Distracted Boyfriend</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2018</div>
+                        <div class="timeline-content">
+                            <h3>Tide Pod Challenge</h3>
+                            <p>What began as a joke about the appetizing appearance of laundry detergent pods sparked concern when some people actually attempted to eat them, showing the potential real-world impact of meme culture.</p>
+                            <div class="history-meme">🧼 Tide Pods</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2019</div>
+                        <div class="timeline-content">
+                            <h3>Area 51 Raid</h3>
+                            <p>A joke Facebook event suggesting people "storm Area 51" to "see them aliens" drew millions of responses and mainstream media attention, culminating in small actual gatherings near the site.</p>
+                            <div class="history-meme">👽 Storm Area 51</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2020</div>
+                        <div class="timeline-content">
+                            <h3>Pandemic Memes</h3>
+                            <p>COVID-19 lockdowns led to a surge in meme creation and consumption, with formats like "Nature is Healing" and TikTok dance challenges providing levity during a difficult time.</p>
+                            <div class="history-meme">😷 Pandemic Life</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2021</div>
+                        <div class="timeline-content">
+                            <h3>Bernie Sanders' Mittens</h3>
+                            <p>An image of Senator Bernie Sanders sitting cross-legged in mittens at President Biden's inauguration became an instant meme, with Sanders photoshopped into countless scenarios.</p>
+                            <div class="history-meme">🧤 Bernie's Mittens</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2022</div>
+                        <div class="timeline-content">
+                            <h3>AI-Generated Content</h3>
+                            <p>Tools like DALL-E and Midjourney began creating bizarre, dreamlike images based on text prompts, adding a new dimension to meme creation and visual humor.</p>
+                            <div class="history-meme">🤖 AI Art Memes</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">2023</div>
+                        <div class="timeline-content">
+                            <h3>Interactive Meme Games</h3>
+                            <p>Meme culture has become so mainstream that games like "Meme Clicker Tycoon" are created to celebrate and interact with meme culture in new ways.</p>
+                            <div class="history-meme">🎮 Meta Meme Games</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">Future</div>
+                        <div class="timeline-content">
+                            <h3>The Future of Memes</h3>
+                            <p>As AI and virtual reality technologies advance, memes may evolve into even more complex and interactive formats, continuing their role as a fundamental element of human cultural transmission.</p>
+                            <div class="meme-future-note">Perhaps one day, games like Meme Clicker Tycoon will be studied as historical artifacts of early digital meme culture!</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="history-footer">
+                    <p>Memes represent one of humanity's most fascinating cultural phenomena - the ability to rapidly share and evolve ideas through imitation and creative modification.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="mini-games" class="tab-content">
+            <div class="minigames-container">
+                <h2>Meme Mini Games</h2>
+                <p class="minigame-intro">Play games to earn bonus memes!</p>
+                <div class="minigame-grid">
+                    <div class="minigame-card" id="minigame-memory">
+                        <h3>Meme Memory</h3>
+                        <p>Match pairs of meme cards</p>
+                        <button class="minigame-button" data-game="memory">Play</button>
+                    </div>
+                    <div class="minigame-card" id="minigame-reaction">
+                        <h3>Fast Clicker</h3>
+                        <p>Click as many memes as you can in 10 seconds</p>
+                        <button class="minigame-button" data-game="reaction">Play</button>
+                    </div>
+                    <div class="minigame-card" id="minigame-trivia">
+                        <h3>Meme Trivia</h3>
+                        <p>Test your meme knowledge</p>
+                        <button class="minigame-button" data-game="trivia">Play</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="minigame-area" class="minigame-area">
+                <!-- Minigames will be displayed here -->
+            </div>
+        </div>
+
+        <div id="settings" class="tab-content">
+            <div class="settings-container">
+                <h2>Game Settings</h2>
+                <div class="settings-box">
+                    <h3>Reset Progress</h3>
+                    <p>Warning: This will completely reset your game progress!</p>
+                    <button id="reset-button" class="reset-button">Reset Game</button>
+                    <div id="reset-confirm" class="reset-confirm">
+                        <p>Are you sure? All progress will be lost!</p>
+                        <div class="reset-buttons">
+                            <button id="reset-yes" class="reset-yes">Yes, Reset</button>
+                            <button id="reset-no" class="reset-no">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-box">
+                    <h3>Game Information</h3>
+                    <p>Meme Clicker Tycoon v1.0</p>
+                    <p>Click memes, build your empire, and become the ultimate meme tycoon!</p>
+                    <a href="encyclopedia.html" class="encyclopedia-link" target="_blank">View Meme Encyclopedia</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="achievement-popup" class="achievement-popup">
+            <div class="achievement-content">
+                <h3>Memechievement Unlocked!</h3>
+                <p id="achievement-text"></p>
+            </div>
+        </div>
+        
+        <div id="modal-overlay" class="modal-overlay"></div>
+        
+        <div class="mobile-nav">
+            <div class="mobile-nav-container">
+                <div class="mobile-nav-item active" data-tab="main-game">
+                    <div class="mobile-nav-icon">🏠</div>
+                    <span>Game</span>
+                </div>
+                <div class="mobile-nav-item" data-tab="buildings">
+                    <div class="mobile-nav-icon">🏢</div>
+                    <span>Buildings</span>
+                </div>
+                <div class="mobile-nav-item" data-tab="meme-haven">
+                    <div class="mobile-nav-icon">😇</div>
+                    <span>Haven</span>
+                </div>
+                <div class="mobile-nav-item" data-tab="statistics">
+                    <div class="mobile-nav-icon">📊</div>
+                    <span>Stats</span>
+                </div>
+                <div class="mobile-nav-item" data-tab="history">
+                    <div class="mobile-nav-icon">📜</div>
+                    <span>History</span>
+                </div>
+                <div class="mobile-nav-item" data-tab="mini-games">
+                    <div class="mobile-nav-icon">🎮</div>
+                    <span>Games</span>
+                </div>
+                <div class="mobile-nav-item" data-tab="settings">
+                    <div class="mobile-nav-icon">⚙️</div>
+                    <span>Settings</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="cordova.js"></script>
+    <script src="autoversion.js"></script>
+    <script src="script.js"></script>
+    <script src="particlelimiter.js"></script>
+</body>
+</html>
