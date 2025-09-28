@@ -2,17 +2,17 @@
 (function() {
     const versionInfo = {
         major: 2,
-        minor: 0,
+        minor: 1,
         patch: 0,
-        build: "202307R",
+        build: "202307B",
         updateDate: "2023-07-25",
         changes: [
-            "Complete UI overhaul with shiny gradient effects",
-            "Remastered game interface for improved visuals",
-            "Enhanced performance on Android devices",
-            "Improved building info modals with real-time updates",
-            "Added particle effects system optimization",
-            "Updated title to 'Meme Clicker: Android Remastered Edition'"
+            "Complete browser compatibility overhaul",
+            "Removed Cordova dependencies for web deployment",
+            "Enhanced browser notification support",
+            "Web-optimized vibration API integration",
+            "Updated branding to 'Browser Edition'",
+            "Improved cross-browser performance optimization"
         ]
     };
 
@@ -76,13 +76,13 @@
         // Update version in title screen
         const gameVersionElement = document.querySelector('.game-version');
         if (gameVersionElement) {
-            gameVersionElement.textContent = `${versionString} - Tap to make memes!`;
+            gameVersionElement.textContent = `${versionString} Browser Edition - Click to make memes!`;
         }
         
         // Update version in settings
         const settingsInfoElement = document.querySelector('.settings-box:nth-child(2) p:first-of-type');
         if (settingsInfoElement) {
-            settingsInfoElement.textContent = `Meme Clicker Tycoon ${versionString}`;
+            settingsInfoElement.textContent = `Meme Clicker Tycoon ${versionString} Browser Edition`;
         }
         
         // Create version history if it doesn't exist

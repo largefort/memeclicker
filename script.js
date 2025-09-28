@@ -24,7 +24,7 @@ let gameState = {
     clickedDuringBoost: false,
     clicksWithoutBuying: 0,
     buildingClickBonus: 0, // Added to track click power bonus from buildings
-    platform: 'android', // Added platform identifier
+    platform: 'browser', // Changed from 'android' to 'browser'
     hasSeenTitleScreen: false, // Track if user has seen title screen
     // Prestige system values
     heavenlyMemes: 0,
@@ -41,11 +41,7 @@ let gameState = {
     vibrationEnabled: true, // New setting to control vibration
     smoothMode: false, // New setting for smooth mode
     notificationsEnabled: true,
-    buildingMemesProduced: {}, // Track memes produced by each building
-    voiceCommandsEnabled: true, // New setting to control voice commands
-    listenForCommands: false, // Flag to track if we're actively listening
-    lastVoiceCommand: null, // Store the last recognized voice command
-    voiceCommandTimeout: null // Store timeout for voice command feedback
+    buildingMemesProduced: {} // Track memes produced by each building
 };
 
 // Meme generators configuration
@@ -486,6 +482,25 @@ const achievements = [
     { id: 'all_buildings_200', name: 'Meme Collector Extraordinaire', requirement: () => generators.every(g => g.amount >= 200), message: 'Have at least 200 of each generator type!' },
     { id: 'meme_septillion', name: 'Septillion Memes', requirement: () => gameState.totalMemes >= 1e24, message: 'You created 1 septillion memes! Breaking the meme economy!' },
     { id: 'meme_octillion', name: 'Octillion Memes', requirement: () => gameState.totalMemes >= 1e27, message: 'You created 1 octillion memes! Beyond comprehension!' },
+    { id: 'mps_quadrillion', name: 'Meme Hyperinflation', requirement: () => gameState.memesPerSecond >= 1e15, message: 'Reach 1 quadrillion memes per second!' },
+    { id: 'reaction_250', name: 'Click Transcendence', requirement: () => gameState.highestReactionScore >= 250, message: 'Score 250+ in the Fast Clicker mini-game!' },
+    { id: 'memory_win_1000', name: 'Memory Singularity', requirement: () => gameState.memoryGamesWon >= 1000, message: 'Win 1,000 Memory mini-games!' },
+    { id: 'heavenly_100000000', name: 'Meme Multiverse Director', requirement: () => gameState.heavenlyMemes >= 100000000, message: 'Collect 100,000,000 Heavenly Memes!' },
+    { id: 'building_1000000', name: 'Meme Universal Conqueror', requirement: () => gameState.totalBuildings >= 1000000, message: 'Own 1,000,000 total buildings!' },
+    { id: 'click_billion', name: 'Click Omnipotence', requirement: () => gameState.clickedMemes >= 1000000000, message: 'You clicked 1 billion times! Your finger now controls reality.' },
+    { id: 'mps_quintillion', name: 'Reality Memebender', requirement: () => gameState.memesPerSecond >= 1e18, message: 'Reach 1 quintillion memes per second!' },
+    { id: 'smooth_mode_user', name: 'Smooth Operator', requirement: () => gameState.smoothMode, message: 'Activate Smooth Mode for a more optimized experience!' },
+    { id: 'jafet_10', name: 'Jafet Apprentice', requirement: () => generators.find(g => g.id === 'jafet')?.amount >= 10, message: 'Own 10 Jafet Was Here generators!' },
+    { id: 'jafet_50', name: 'Jafet Disciple', requirement: () => generators.find(g => g.id === 'jafet')?.amount >= 50, message: 'Own 50 Jafet Was Here generators!' },
+    { id: 'jafet_100', name: 'Jafet Legend', requirement: () => generators.find(g => g.id === 'jafet')?.amount >= 100, message: 'Own 100 Jafet Was Here generators, truly legendary!' },
+    { id: 'kratos_10', name: 'Boy! Collector', requirement: () => generators.find(g => g.id === 'kratos')?.amount >= 10, message: 'Own 10 Kratos Boy! generators!' },
+    { id: 'kratos_50', name: 'Spartan General', requirement: () => generators.find(g => g.id === 'kratos')?.amount >= 50, message: 'Own 50 Kratos Boy! generators!' },
+    { id: 'kratos_100', name: 'Ghost of Sparta', requirement: () => generators.find(g => g.id === 'kratos')?.amount >= 100, message: 'Own 100 Kratos Boy! generators!' },
+    { id: 'zeus_10', name: 'Olympian', requirement: () => generators.find(g => g.id === 'zeus')?.amount >= 10, message: 'Own 10 Zeus generators!' },
+    { id: 'zeus_50', name: 'Thunder Lord', requirement: () => generators.find(g => g.id === 'zeus')?.amount >= 50, message: 'Own 50 Zeus generators!' },
+    { id: 'zeus_100', name: 'King of Gods', requirement: () => generators.find(g => g.id === 'zeus')?.amount >= 100, message: 'Own 100 Zeus generators!' },
+    { id: 'meme_sextillion', name: 'Sextillion Memes', requirement: () => gameState.totalMemes >= 1e21, message: 'You created 1 sextillion memes! Beyond the stars!' },
+    { id: 'meme_nonillion', name: 'Nonillion Memes', requirement: () => gameState.totalMemes >= 1e30, message: 'You created 1 nonillion memes! Universe shattering!' },
     { id: 'meme_decillion', name: 'Decillion Memes', requirement: () => gameState.totalMemes >= 1e33, message: 'You created 1 decillion memes! Reality bending!' },
     { id: 'meme_googol', name: 'Googol Memes', requirement: () => gameState.totalMemes >= 1e100, message: 'You created 1 googol memes! Mathematical impossibility!' },
     { id: 'building_million', name: 'Meme Galactic Empire', requirement: () => gameState.totalBuildings >= 1000000, message: 'Own 1,000,000 total buildings!' },
@@ -562,6 +577,7 @@ const achievementStats = document.getElementById('achievement-stats');
 function init() {
     loadGame();
     
+    // Ensure all required properties exist after loading
     if (!gameState.boostActivations) gameState.boostActivations = 0;
     if (!gameState.minigamesPlayed) gameState.minigamesPlayed = 0;
     if (!gameState.minigamesTypes) gameState.minigamesTypes = new Set();
@@ -583,7 +599,7 @@ function init() {
     if (gameState.notificationsEnabled === undefined) gameState.notificationsEnabled = true;
     if (!gameState.buildingMemesProduced) gameState.buildingMemesProduced = {};
     
-    // Initialize building memes produced
+    // Initialize building memes produced for any missing buildings
     generators.forEach(gen => {
         if (!gameState.buildingMemesProduced[gen.id]) {
             gameState.buildingMemesProduced[gen.id] = 0;
@@ -594,57 +610,51 @@ function init() {
     const returningToGame = localStorage.getItem('returningToGame') === 'true';
     
     // Check if this is the first time visiting or if title screen not seen
-    if (!gameState.hasSeenTitleScreen && titleScreen) {
+    if (!gameState.hasSeenTitleScreen) {
         titleScreen.classList.add('active');
         document.body.style.overflow = 'hidden';
         
-        // Update game version for remastered edition
+        // Update game version for browser edition
         const gameVersionElement = document.querySelector('.game-version');
         if (gameVersionElement) {
-            gameVersionElement.textContent = `v2.0 Remastered - Tap to make memes!`;
+            gameVersionElement.textContent = `v2.0 Browser Edition - Tap to make memes!`;
         }
-    } else if (returningToGame && loadingScreen) {
+    } else if (returningToGame) {
         showReturnLoadingScreen();
         localStorage.removeItem('returningToGame');
-    } else if (titleScreen) {
+    } else {
         titleScreen.classList.remove('active');
         document.body.style.overflow = '';
     }
     
-    if (startGameBtn) {
-        startGameBtn.addEventListener('click', () => {
-            if (titleScreen) titleScreen.classList.remove('active');
-            
-            // Show loading screen
-            const loadingScreen = document.getElementById('loading-screen');
-            if (loadingScreen) {
-                loadingScreen.classList.add('active');
-                
-                // Random loading tips
-                const loadingTips = [
-                    "Tip: The more buildings you buy, the more memes you make!",
-                    "Tip: Click fast during boosts to maximize your memes!",
-                    "Tip: Complete achievements to show off your meme skills!",
-                    "Tip: Play mini-games for bonus memes!",
-                    "Tip: Build a diverse meme empire for maximum production!",
-                    "Tip: Don't forget to activate your boost for 2x memes!"
-                ];
-                
-                const tipElement = document.querySelector('.loading-tip');
-                if (tipElement) {
-                    tipElement.textContent = loadingTips[Math.floor(Math.random() * loadingTips.length)];
-                }
-                
-                // Simulate loading time
-                setTimeout(() => {
-                    loadingScreen.classList.remove('active');
-                    document.body.style.overflow = '';
-                    gameState.hasSeenTitleScreen = true;
-                    saveGame();
-                }, 3500); // Show loading screen for 3.5 seconds
-            }
-        });
-    }
+    startGameBtn.addEventListener('click', () => {
+        titleScreen.classList.remove('active');
+        
+        // Show loading screen
+        const loadingScreen = document.getElementById('loading-screen');
+        loadingScreen.classList.add('active');
+        
+        // Random loading tips
+        const loadingTips = [
+            "Tip: The more buildings you buy, the more memes you make!",
+            "Tip: Click fast during boosts to maximize your memes!",
+            "Tip: Complete achievements to show off your meme skills!",
+            "Tip: Play mini-games for bonus memes!",
+            "Tip: Build a diverse meme empire for maximum production!",
+            "Tip: Don't forget to activate your boost for 2x memes!"
+        ];
+        
+        const tipElement = document.querySelector('.loading-tip');
+        tipElement.textContent = loadingTips[Math.floor(Math.random() * loadingTips.length)];
+        
+        // Simulate loading time
+        setTimeout(() => {
+            loadingScreen.classList.remove('active');
+            document.body.style.overflow = '';
+            gameState.hasSeenTitleScreen = true;
+            saveGame();
+        }, 3500); // Show loading screen for 3.5 seconds
+    });
     
     updateCounters();
     updateBuildingInfo();
@@ -652,112 +662,102 @@ function init() {
     renderBuildingsTab(); 
     updateHeavenlyMemes();
     
-    if (memeButton) memeButton.addEventListener('click', clickMeme);
-    if (boostButton) boostButton.addEventListener('click', activateBoost);
+    memeButton.addEventListener('click', clickMeme);
+    boostButton.addEventListener('click', activateBoost);
     
-    if (resetButton) resetButton.addEventListener('click', showResetConfirmation);
-    if (resetYes) resetYes.addEventListener('click', resetGame);
-    if (resetNo) resetNo.addEventListener('click', hideResetConfirmation);
+    resetButton.addEventListener('click', showResetConfirmation);
+    resetYes.addEventListener('click', resetGame);
+    resetNo.addEventListener('click', hideResetConfirmation);
     
-    if (tabButtons) {
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const tabId = button.getAttribute('data-tab');
-                const currentTab = document.querySelector('.tab-content.active');
-                const targetTab = document.getElementById(tabId);
-                if (!targetTab) return;
-                
-                const currentIndex = Array.from(tabContents).indexOf(currentTab);
-                const targetIndex = Array.from(tabContents).indexOf(targetTab);
-                
-                // Determine animation direction
-                if (currentTab) {
-                    if (targetIndex > currentIndex) {
-                        currentTab.classList.add('slide-left');
-                    } else {
-                        currentTab.classList.add('slide-right');
-                    }
-                    
-                    // Wait for animation to complete before hiding the current tab
-                    setTimeout(() => {
-                        tabButtons.forEach(btn => btn.classList.remove('active'));
-                        tabContents.forEach(content => {
-                            content.classList.remove('active', 'slide-left', 'slide-right');
-                        });
-                        
-                        button.classList.add('active');
-                        targetTab.classList.add('active');
-                        
-                        if (tabId === 'statistics') {
-                            updateStatistics();
-                        }
-                        
-                        if (tabId === 'buildings') {
-                            renderBuildingsTab();
-                        }
-                    }, 300);
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabId = button.getAttribute('data-tab');
+            const currentTab = document.querySelector('.tab-content.active');
+            const targetTab = document.getElementById(tabId);
+            const currentIndex = Array.from(tabContents).indexOf(currentTab);
+            const targetIndex = Array.from(tabContents).indexOf(targetTab);
+            
+            // Determine animation direction
+            if (currentTab) {
+                if (targetIndex > currentIndex) {
+                    currentTab.classList.add('slide-left');
                 } else {
+                    currentTab.classList.add('slide-right');
+                }
+                
+                // Wait for animation to complete before hiding the current tab
+                setTimeout(() => {
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => {
+                        content.classList.remove('active', 'slide-left', 'slide-right');
+                    });
+                    
                     button.classList.add('active');
                     targetTab.classList.add('active');
-                }
-            });
-        });
-    }
-    
-    const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
-    if (mobileNavItems) {
-        mobileNavItems.forEach(item => {
-            item.addEventListener('click', () => {
-                const tabId = item.getAttribute('data-tab');
-                const currentTab = document.querySelector('.tab-content.active');
-                const targetTab = document.getElementById(tabId);
-                if (!targetTab) return;
-                
-                const currentIndex = Array.from(tabContents).indexOf(currentTab);
-                const targetIndex = Array.from(tabContents).indexOf(targetTab);
-                
-                // Determine animation direction
-                if (currentTab) {
-                    if (targetIndex > currentIndex) {
-                        currentTab.classList.add('slide-left');
-                    } else {
-                        currentTab.classList.add('slide-right');
+                    
+                    if (tabId === 'statistics') {
+                        updateStatistics();
                     }
                     
-                    // Wait for animation to complete before hiding the current tab
-                    setTimeout(() => {
-                        mobileNavItems.forEach(navItem => navItem.classList.remove('active'));
-                        tabContents.forEach(content => {
-                            content.classList.remove('active', 'slide-left', 'slide-right');
-                        });
-                        
-                        item.classList.add('active');
-                        targetTab.classList.add('active');
-                        
-                        if (tabId === 'statistics') {
-                            updateStatistics();
-                        }
-                        
-                        if (tabId === 'buildings') {
-                            renderBuildingsTab();
-                        }
-                    }, 300);
+                    if (tabId === 'buildings') {
+                        renderBuildingsTab();
+                    }
+                }, 300);
+            } else {
+                button.classList.add('active');
+                targetTab.classList.add('active');
+            }
+        });
+    });
+    
+    const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
+    mobileNavItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const tabId = item.getAttribute('data-tab');
+            const currentTab = document.querySelector('.tab-content.active');
+            const targetTab = document.getElementById(tabId);
+            const currentIndex = Array.from(tabContents).indexOf(currentTab);
+            const targetIndex = Array.from(tabContents).indexOf(targetTab);
+            
+            // Determine animation direction
+            if (currentTab) {
+                if (targetIndex > currentIndex) {
+                    currentTab.classList.add('slide-left');
                 } else {
+                    currentTab.classList.add('slide-right');
+                }
+                
+                // Wait for animation to complete before hiding the current tab
+                setTimeout(() => {
+                    mobileNavItems.forEach(navItem => navItem.classList.remove('active'));
+                    tabContents.forEach(content => {
+                        content.classList.remove('active', 'slide-left', 'slide-right');
+                    });
+                    
                     item.classList.add('active');
                     targetTab.classList.add('active');
-                }
-            });
+                    
+                    if (tabId === 'statistics') {
+                        updateStatistics();
+                    }
+                    
+                    if (tabId === 'buildings') {
+                        renderBuildingsTab();
+                    }
+                }, 300);
+            } else {
+                item.classList.add('active');
+                targetTab.classList.add('active');
+            }
         });
-    }
+    });
     
-    if (minigameButtons) {
-        minigameButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const gameType = button.getAttribute('data-game');
-                startMiniGame(gameType);
-            });
+    minigameButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const gameType = button.getAttribute('data-game');
+            startMiniGame(gameType);
         });
-    }
+    });
     
     // Meme Haven prestige system event listeners
     const ascendButton = document.getElementById('ascend-button');
@@ -777,140 +777,113 @@ function init() {
     }
     
     startGameLoop();
+    
+    // Set up autosave interval - save every 10 seconds
     setInterval(() => {
         saveGame();
-    }, 30000); 
+    }, 10000);
     
-    setInterval(checkAchievements, 5000); 
+    // Set up achievement check interval
+    setInterval(checkAchievements, 5000);
+    
+    // Save game when page is about to be closed/refreshed
+    window.addEventListener('beforeunload', () => {
+        saveGame();
+    });
+    
+    // Save game when page becomes hidden (mobile/tab switching)
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            saveGame();
+        }
+    });
     
     // Add vibration setting to settings tab
-    const settingsContainer = document.querySelector('.settings-container');
-    if (settingsContainer) {
-        const settingsBox = document.createElement('div');
-        settingsBox.className = 'settings-box';
-        settingsBox.innerHTML = `
-            <h3>Device Settings</h3>
-            <p>Control haptic feedback and other device features.</p>
-            <div class="setting-option">
-                <label for="vibration-toggle">Vibration:</label>
-                <label class="switch">
-                    <input type="checkbox" id="vibration-toggle" ${gameState.vibrationEnabled ? 'checked' : ''}>
-                    <span class="slider round"></span>
-                </label>
-            </div>
-            <div class="setting-option">
-                <label for="smooth-mode-toggle">Smooth Mode:</label>
-                <label class="switch">
-                    <input type="checkbox" id="smooth-mode-toggle" ${gameState.smoothMode ? 'checked' : ''}>
-                    <span class="slider round"></span>
-                </label>
-            </div>
-            <div class="setting-option">
-                <label for="notifications-toggle">Notifications:</label>
-                <label class="switch">
-                    <input type="checkbox" id="notifications-toggle" ${gameState.notificationsEnabled ? 'checked' : ''}>
-                    <span class="slider round"></span>
-                </label>
-            </div>
-            <div class="setting-option">
-                <label for="voice-commands-toggle">Voice Commands:</label>
-                <label class="switch">
-                    <input type="checkbox" id="voice-commands-toggle" ${gameState.voiceCommandsEnabled ? 'checked' : ''}>
-                    <span class="slider round"></span>
-                </label>
-            </div>
-            <p class="setting-description">Smooth Mode reduces animations and optimizes performance.</p>
-        `;
-        settingsContainer.appendChild(settingsBox);
-        
-        // Add event listener for vibration toggle
-        const vibrationToggle = document.getElementById('vibration-toggle');
-        if (vibrationToggle) {
-            vibrationToggle.addEventListener('change', function(e) {
-                gameState.vibrationEnabled = e.target.checked;
-                saveGame();
-                if (gameState.vibrationEnabled) {
-                    vibrate(50); // Short vibration to indicate it's on
-                }
-            });
-        }
-        
-        // Add event listener for smooth mode toggle
-        const smoothModeToggle = document.getElementById('smooth-mode-toggle');
-        if (smoothModeToggle) {
-            smoothModeToggle.addEventListener('change', function(e) {
-                gameState.smoothMode = e.target.checked;
-                saveGame();
-                applyPerformanceMode();
-                
-                // Check for achievement
-                if (gameState.smoothMode && !gameState.achievements['smooth_mode_user']) {
-                    gameState.achievements['smooth_mode_user'] = true;
-                    showAchievementPopup('Smooth Operator: You activated Smooth Mode!');
-                }
-            });
-        }
-        
-        // Add event listener for notifications toggle
-        const notificationsToggle = document.getElementById('notifications-toggle');
-        if (notificationsToggle) {
-            notificationsToggle.addEventListener('change', function(e) {
-                gameState.notificationsEnabled = e.target.checked;
-                saveGame();
-                
-                if (gameState.notificationsEnabled) {
-                    if (window.cordova && window.cordova.plugins && window.cordova.plugins.notification && window.cordova.plugins.notification.local) {
-                        window.cordova.plugins.notification.local.requestPermission(function (granted) {
-                            if (granted) {
-                                scheduleNotifications();
-                                showAchievementPopup('Notifications enabled! Expect daily meme updates!');
-                            }
-                        });
-                    }
-                } else {
-                    if (window.cordova && window.cordova.plugins && window.cordova.plugins.notification && window.cordova.plugins.notification.local) {
-                        window.cordova.plugins.notification.local.cancelAll();
-                    }
-                }
-            });
-        }
-        
-        // Add event listener for voice commands toggle
-        const voiceCommandsToggle = document.getElementById('voice-commands-toggle');
-        if (voiceCommandsToggle) {
-            voiceCommandsToggle.addEventListener('change', function(e) {
-                gameState.voiceCommandsEnabled = e.target.checked;
-                saveGame();
-                
-                if (gameState.voiceCommandsEnabled) {
-                    initVoiceCommands();
-                    showVoiceCommandFeedback("Voice commands enabled!", "success");
-                } else {
-                    stopVoiceCommands();
-                    showVoiceCommandFeedback("Voice commands disabled", "info");
-                }
-            });
-        }
-    }
+    const settingsBox = document.createElement('div');
+    settingsBox.className = 'settings-box';
+    settingsBox.innerHTML = `
+        <h3>Browser Settings</h3>
+        <p>Control haptic feedback and other browser features.</p>
+        <div class="setting-option">
+            <label for="vibration-toggle">Vibration (if supported):</label>
+            <label class="switch">
+                <input type="checkbox" id="vibration-toggle" ${gameState.vibrationEnabled ? 'checked' : ''}>
+                <span class="slider round"></span>
+            </label>
+        </div>
+        <div class="setting-option">
+            <label for="smooth-mode-toggle">Smooth Mode:</label>
+            <label class="switch">
+                <input type="checkbox" id="smooth-mode-toggle" ${gameState.smoothMode ? 'checked' : ''}>
+                <span class="slider round"></span>
+            </label>
+        </div>
+        <div class="setting-option">
+            <label for="notifications-toggle">Notifications (if supported):</label>
+            <label class="switch">
+                <input type="checkbox" id="notifications-toggle" ${gameState.notificationsEnabled ? 'checked' : ''}>
+                <span class="slider round"></span>
+            </label>
+        </div>
+        <p class="setting-description">Smooth Mode reduces animations and optimizes performance.</p>
+        <p class="setting-description">Some features may not be available in all browsers.</p>
+    `;
+    document.querySelector('.settings-container').appendChild(settingsBox);
     
-    // Add voice command test button if it exists
-    const voiceCommandTest = document.getElementById('voice-command-test');
-    if (voiceCommandTest) {
-        voiceCommandTest.addEventListener('click', function() {
-            if (gameState.voiceCommandsEnabled) {
-                listenForVoiceCommand(true);
-                showVoiceCommandFeedback("Listening for commands...", "listening");
+    // Add event listener for vibration toggle
+    document.getElementById('vibration-toggle').addEventListener('change', function(e) {
+        gameState.vibrationEnabled = e.target.checked;
+        saveGame();
+        if (gameState.vibrationEnabled) {
+            vibrate(50); // Short vibration to indicate it's on
+        }
+    });
+    
+    // Add event listener for smooth mode toggle
+    document.getElementById('smooth-mode-toggle').addEventListener('change', function(e) {
+        gameState.smoothMode = e.target.checked;
+        saveGame();
+        applyPerformanceMode();
+        
+        // Check for achievement
+        if (gameState.smoothMode && !gameState.achievements['smooth_mode_user']) {
+            gameState.achievements['smooth_mode_user'] = true;
+            showAchievementPopup('Smooth Operator: You activated Smooth Mode!');
+        }
+    });
+    
+    // Add event listener for notifications toggle
+    document.getElementById('notifications-toggle').addEventListener('change', function(e) {
+        gameState.notificationsEnabled = e.target.checked;
+        saveGame();
+        
+        if (gameState.notificationsEnabled) {
+            // Request permission inside user event handler
+            if ('Notification' in window) {
+                Notification.requestPermission().then(function (permission) {
+                    if (permission === 'granted') {
+                        scheduleNotifications();
+                        showAchievementPopup('Notifications enabled! Expect daily meme updates!');
+                    } else if (permission === 'denied') {
+                        showAchievementPopup('Notifications permission denied. You can enable them in browser settings.');
+                        // Reset the toggle if permission was denied
+                        e.target.checked = false;
+                        gameState.notificationsEnabled = false;
+                        saveGame();
+                    }
+                });
             } else {
-                showVoiceCommandFeedback("Please enable voice commands first", "error");
+                showAchievementPopup('Notifications not supported in this browser.');
+                // Reset the toggle if not supported
+                e.target.checked = false;
+                gameState.notificationsEnabled = false;
+                saveGame();
             }
-        });
-    }
+        }
+    });
     
-    // Notification setup (if Cordova is available)
+    // Browser notification setup
     setupNotifications();
-    
-    // Initialize Cordova
-    document.addEventListener('deviceready', onDeviceReady, false);
     
     // Add encyclopedia button to mobile navigation
     const settingsBoxMobile = document.querySelector('.settings-box:nth-child(2)');
@@ -922,48 +895,19 @@ function init() {
         `;
         settingsBoxMobile.appendChild(encyclopediaMobileLink);
         
-        const encyclopediaMobileButton = document.querySelector('.encyclopedia-mobile-button');
-        if (encyclopediaMobileButton) {
-            encyclopediaMobileButton.addEventListener('click', function() {
-                window.open('encyclopedia.html', '_blank');
-            });
-        }
+        document.querySelector('.encyclopedia-mobile-button').addEventListener('click', function() {
+            window.open('encyclopedia.html', '_blank');
+        });
     }
 }
 
-// Cordova device ready event handler
-function onDeviceReady() {
-    console.log('Cordova initialized. Device ready.');
-    // Vibrate once to indicate app has loaded
-    vibrate(100);
-    
-    // Initialize notifications if plugin is available
-    if (window.cordova && window.cordova.plugins && window.cordova.plugins.notification && window.cordova.plugins.notification.local) {
-        // Set up permission request
-        document.addEventListener('deviceready', function() {
-            window.cordova.plugins.notification.local.requestPermission(function (granted) {
-                if (granted) {
-                    scheduleNotifications();
-                    console.log("Notifications permission granted and scheduled");
-                } else {
-                    console.log("Notifications permission denied");
-                }
-            });
-        }, false);
-    }
-}
-
-// Vibration utility function
+// Browser-compatible vibration utility function
 function vibrate(duration) {
     if (!gameState.vibrationEnabled) return;
     
-    // Only vibrate if cordova and the plugin are available
-    if (window.navigator && window.navigator.vibrate) {
-        // For browsers that support navigator.vibrate
-        window.navigator.vibrate(duration);
-    } else if (window.cordova && window.cordova.plugins && window.cordova.plugins.notification && window.cordova.plugins.notification.vibration) {
-        // For Cordova vibration plugin
-        window.cordova.plugins.notification.vibration.vibrate(duration);
+    // Use browser vibration API if available
+    if ('vibrate' in navigator) {
+        navigator.vibrate(duration);
     }
 }
 
@@ -1084,12 +1028,10 @@ function clickMeme() {
     gameState.clicksWithoutBuying = (gameState.clicksWithoutBuying || 0) + 1;
     
     // Add clicked class for sunglasses effect
-    if (memeButton) {
-        memeButton.classList.add('clicked');
-        setTimeout(() => {
-            memeButton.classList.remove('clicked');
-        }, 500);
-    }
+    memeButton.classList.add('clicked');
+    setTimeout(() => {
+        memeButton.classList.remove('clicked');
+    }, 500);
     
     // Keep full effects regardless of smooth mode
     createClickAnimation(clickValue);
@@ -1098,12 +1040,10 @@ function clickMeme() {
     // Vibrate on click
     vibrate(10);
     
-    if (memeCounter) {
-        memeCounter.style.transform = 'scale(1.2)';
-        setTimeout(() => {
-            memeCounter.style.transform = 'scale(1)';
-        }, 200);
-    }
+    memeCounter.style.transform = 'scale(1.2)';
+    setTimeout(() => {
+        memeCounter.style.transform = 'scale(1)';
+    }, 200);
 }
 
 // Create a fun click animation
@@ -1211,6 +1151,10 @@ function createClickTextParticles(value) {
             particle.style.opacity = '0';
         }, 700 + i * 50);
         
+        setTimeout(() => {
+            particle.remove();
+        }, 1200 + i * 50);
+        
         // Small chance (5%) to create MLG style particle
         if (Math.random() < 0.05 && isNumberEffect) {
             createMLGParticle(value);
@@ -1257,23 +1201,22 @@ function createMLGParticle(value) {
 
 // Update the counter displays
 function updateCounters() {
-    if (memeCounter) memeCounter.textContent = formatNumber(gameState.memes);
+    memeCounter.textContent = formatNumber(gameState.memes);
     
     let displayMPS = gameState.memesPerSecond;
     if (gameState.boostActive) {
         displayMPS *= gameState.boostMultiplier;
-        if (mpsCounter) mpsCounter.textContent = `${formatNumber(displayMPS)} (Boosted!)`;
+        mpsCounter.textContent = `${formatNumber(displayMPS)} (Boosted!)`;
     } else {
-        if (mpsCounter) mpsCounter.textContent = formatNumber(displayMPS);
+        mpsCounter.textContent = formatNumber(displayMPS);
     }
     
     document.querySelectorAll('.buy-button').forEach(button => {
         const generatorId = button.dataset.id;
         const generator = generators.find(g => g.id === generatorId);
-        if (generator) {
-            const cost = calculateCost(generator);
-            button.disabled = gameState.memes < cost;
-        }
+        const cost = calculateCost(generator);
+        
+        button.disabled = gameState.memes < cost;
     });
 }
 
@@ -1901,7 +1844,6 @@ function updateHeavenlyMemes() {
     const ascendButton = document.getElementById('ascend-button');
     const progressBar = document.getElementById('ascension-progress');
     
-    // Skip if any elements are missing
     if (!heavenlyMemes || !potentialMemes || !multiplier || !ascendButton || !progressBar) return;
     
     // Update current heavenly memes
@@ -1977,8 +1919,7 @@ function performAscension() {
         platform: gameState.platform,
         notificationsEnabled: gameState.notificationsEnabled,
         vibrationEnabled: gameState.vibrationEnabled,
-        smoothMode: gameState.smoothMode,
-        buildingMemesProduced: {},
+        smoothMode: gameState.smoothMode
     };
     
     // Reset game state
@@ -2008,21 +1949,8 @@ function performAscension() {
         vibrationEnabled: preservedState.vibrationEnabled,
         smoothMode: preservedState.smoothMode,
         notificationsEnabled: preservedState.notificationsEnabled,
-        buildingMemesProduced: {},
-        lastFrameTime: 0,
-        fpsUpdateInterval: 1000,
-        lastFpsUpdate: 0,
-        frameCount: 0,
-        fps: 60,
-        targetFps: preservedState.smoothMode ? 20 : 30,
-        frameInterval: preservedState.smoothMode ? 1000/20 : 1000/30,
-        lastMpsUpdate: 0
+        buildingMemesProduced: {}
     };
-    
-    // Reset all generators
-    generators.forEach(generator => {
-        generator.amount = 0;
-    });
     
     // Initialize building memes produced after ascension
     generators.forEach(gen => {
@@ -2088,16 +2016,19 @@ function saveGame() {
         heavenlyMemes: gameState.heavenlyMemes,
         ascensions: gameState.ascensions,
         lastAscensionTime: gameState.lastAscensionTime,
-        vibrationEnabled: gameState.vibrationEnabled !== undefined ? gameState.vibrationEnabled : true,
-        smoothMode: gameState.smoothMode || false,
-        notificationsEnabled: gameState.notificationsEnabled !== undefined ? gameState.notificationsEnabled : true,
-        voiceCommandsEnabled: gameState.voiceCommandsEnabled !== undefined ? gameState.voiceCommandsEnabled : true,
-        buildingMemesProduced: gameState.buildingMemesProduced
+        vibrationEnabled: gameState.vibrationEnabled,
+        smoothMode: gameState.smoothMode,
+        notificationsEnabled: gameState.notificationsEnabled,
+        buildingMemesProduced: gameState.buildingMemesProduced,
+        lastSaved: Date.now() // Add timestamp for offline progress
     };
     
-    localStorage.setItem('memeClickerSave', JSON.stringify(saveData));
-    
-    showAutosaveIndicator();
+    try {
+        localStorage.setItem('memeClickerSave', JSON.stringify(saveData));
+        showAutosaveIndicator();
+    } catch (error) {
+        console.error('Error saving game:', error);
+    }
 }
 
 // Show autosave indicator function
@@ -2142,7 +2073,7 @@ function resetGame() {
         clickedDuringBoost: false,
         clicksWithoutBuying: 0,
         buildingClickBonus: 0,
-        platform: 'android',
+        platform: 'browser',
         hasSeenTitleScreen: false,
         heavenlyMemes: 0,
         ascensions: 0,
@@ -2150,15 +2081,7 @@ function resetGame() {
         vibrationEnabled: true,
         smoothMode: false,
         notificationsEnabled: true,
-        buildingMemesProduced: {},
-        lastFrameTime: 0,
-        fpsUpdateInterval: 1000,
-        lastFpsUpdate: 0,
-        frameCount: 0,
-        fps: 60,
-        targetFps: 30,
-        frameInterval: 1000 / 30,
-        lastMpsUpdate: 0
+        buildingMemesProduced: {}
     };
     
     // Reset all generators
@@ -2299,36 +2222,31 @@ function showBuildingInfoModal(generator) {
 // Show return loading screen
 function showReturnLoadingScreen() {
     const loadingScreen = document.getElementById('loading-screen');
-    if (loadingScreen) {
-        loadingScreen.classList.add('active');
-        
-        // Update loading tips for returning from encyclopedia
-        const loadingTips = [
-            "Tip: Check the encyclopedia anytime to learn about meme history!",
-            "Tip: Knowledge is power, meme knowledge is laughter!",
-            "Tip: The more you know about memes, the better you can click!",
-            "Tip: Play mini-games for bonus memes!",
-            "Tip: Build a diverse meme empire for maximum production!",
-            "Tip: Don't forget to activate your boost for 2x memes!"
-        ];
-        
-        const tipElement = document.querySelector('.loading-tip');
-        if (tipElement) {
-            tipElement.textContent = loadingTips[Math.floor(Math.random() * loadingTips.length)];
-        }
-        
-        // Update loading text
-        const loadingText = document.querySelector('.loading-text');
-        if (loadingText) {
-            loadingText.textContent = "Returning to Game...";
-        }
-        
-        // Simulate loading time (slightly shorter when returning)
-        setTimeout(() => {
-            loadingScreen.classList.remove('active');
-            document.body.style.overflow = '';
-        }, 2000); // Show loading screen for 2 seconds when returning
+    loadingScreen.classList.add('active');
+    
+    // Update loading tips for returning from encyclopedia
+    const loadingTips = [
+        "Tip: Check the encyclopedia anytime to learn about meme history!",
+        "Tip: Knowledge is power, meme knowledge is laughter!",
+        "Tip: The more you know about memes, the better you can click!",
+        "Tip: Returning to your meme empire, stand by!",
+        "Tip: Loading your meme collection..."
+    ];
+    
+    const tipElement = document.querySelector('.loading-tip');
+    tipElement.textContent = loadingTips[Math.floor(Math.random() * loadingTips.length)];
+    
+    // Update loading text
+    const loadingText = document.querySelector('.loading-text');
+    if (loadingText) {
+        loadingText.textContent = "Returning to Game...";
     }
+    
+    // Simulate loading time (slightly shorter when returning)
+    setTimeout(() => {
+        loadingScreen.classList.remove('active');
+        document.body.style.overflow = '';
+    }, 2000); // Show loading screen for 2 seconds when returning
 }
 
 // Show reset confirmation dialog
@@ -2374,24 +2292,21 @@ function applyPerformanceMode() {
     }
 }
 
-// Setup notifications function
+// Browser-compatible setup notifications function
 function setupNotifications() {
-    if (window.cordova && window.cordova.plugins && window.cordova.plugins.notification && window.cordova.plugins.notification.local) {
-        // Set up permission request
-        document.addEventListener('deviceready', function() {
-            window.cordova.plugins.notification.local.requestPermission(function (granted) {
-                if (granted) {
-                    scheduleNotifications();
-                }
-            });
-        }, false);
+    // Remove automatic permission request - only request when user toggles setting
+    // Just check if notifications are already granted and schedule if so
+    if ('Notification' in window && Notification.permission === 'granted' && gameState.notificationsEnabled) {
+        scheduleNotifications();
     }
 }
 
-// Schedule daily meme notifications
+// Browser-compatible schedule notifications
 function scheduleNotifications() {
-    // Cancel existing notifications first
-    window.cordova.plugins.notification.local.cancelAll();
+    // Use browser notification API
+    if (!('Notification' in window) || Notification.permission !== 'granted') {
+        return;
+    }
     
     // Funny notification titles and messages
     const memeNotifications = [
@@ -2406,34 +2321,45 @@ function scheduleNotifications() {
         { title: "Daily Meme: Jafet Was Here", text: "And now he's wondering where YOU are!" }
     ];
     
-    // Schedule notifications for the next 14 days, one per day
-    const now = new Date();
-    for (let i = 0; i < 14; i++) {
-        const notificationTime = new Date();
-        notificationTime.setDate(now.getDate() + i + 1); // Start from tomorrow
-        notificationTime.setHours(18, 0, 0, 0); // 6:00 PM
-        
-        // Get a random notification
-        const notification = memeNotifications[Math.floor(Math.random() * memeNotifications.length)];
-        
-        // Schedule the notification
-        window.cordova.plugins.notification.local.schedule({
-            id: i + 1,
-            title: notification.title,
-            text: notification.text,
-            foreground: false,
-            trigger: { at: notificationTime }
-        });
+    // Schedule a reminder notification for later (browsers don't support scheduled notifications like mobile)
+    // Instead, we'll use localStorage to track when to show notifications
+    const lastNotification = localStorage.getItem('memeClickerLastNotification');
+    const now = Date.now();
+    const oneDayMs = 24 * 60 * 60 * 1000;
+    
+    if (!lastNotification || (now - parseInt(lastNotification)) > oneDayMs) {
+        // Set a timeout for showing notification after 30 minutes of inactivity
+        setTimeout(() => {
+            if (document.hidden) {
+                const notification = memeNotifications[Math.floor(Math.random() * memeNotifications.length)];
+                new Notification(notification.title, {
+                    body: notification.text,
+                    icon: '/favicon.ico' // Add favicon if available
+                });
+                localStorage.setItem('memeClickerLastNotification', now.toString());
+            }
+        }, 30 * 60 * 1000); // 30 minutes
     }
     
-    // Also add a background notification when idle for too long (24 hours)
-    const lastActiveTimestamp = Date.now();
-    localStorage.setItem('memeClickerLastActive', lastActiveTimestamp);
-    
-    // Set up automatic re-scheduling when reopening the app
-    document.addEventListener('resume', function() {
-        scheduleNotifications();
-    }, false);
+    // Set up visibility change listener for re-engagement notifications
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            // User returned to tab
+            const lastActive = localStorage.getItem('memeClickerLastActive');
+            if (lastActive) {
+                const timeSinceActive = now - parseInt(lastActive);
+                if (timeSinceActive > 60 * 60 * 1000) { // More than 1 hour
+                    // Show welcome back notification
+                    setTimeout(() => {
+                        showAchievementPopup('Welcome back! Your memes missed you!');
+                    }, 1000);
+                }
+            }
+        } else {
+            // User left tab
+            localStorage.setItem('memeClickerLastActive', Date.now().toString());
+        }
+    });
 }
 
 // Load game from localStorage
@@ -2462,39 +2388,55 @@ function loadGame() {
             gameState.clickedDuringBoost = parsedData.clickedDuringBoost || false;
             gameState.clicksWithoutBuying = parsedData.clicksWithoutBuying || 0;
             gameState.buildingClickBonus = parsedData.buildingClickBonus || 0;
+            gameState.hasSeenTitleScreen = parsedData.hasSeenTitleScreen || false;
             gameState.heavenlyMemes = parsedData.heavenlyMemes || 0;
             gameState.ascensions = parsedData.ascensions || 0;
             gameState.lastAscensionTime = parsedData.lastAscensionTime || 0;
             gameState.vibrationEnabled = parsedData.vibrationEnabled !== undefined ? parsedData.vibrationEnabled : true;
             gameState.smoothMode = parsedData.smoothMode || false;
             gameState.notificationsEnabled = parsedData.notificationsEnabled !== undefined ? parsedData.notificationsEnabled : true;
-            gameState.voiceCommandsEnabled = parsedData.voiceCommandsEnabled !== undefined ? parsedData.voiceCommandsEnabled : true;
             gameState.buildingMemesProduced = parsedData.buildingMemesProduced || {};
             
             // Update generators based on saved data
-            parsedData.generators?.forEach(savedGenerator => {
-                const generator = generators.find(g => g.id === savedGenerator.id);
-                if (generator) {
-                    generator.amount = savedGenerator.amount || 0;
-                }
-            });
+            if (parsedData.generators && Array.isArray(parsedData.generators)) {
+                parsedData.generators.forEach(savedGenerator => {
+                    const generator = generators.find(g => g.id === savedGenerator.id);
+                    if (generator) {
+                        generator.amount = savedGenerator.amount || 0;
+                    }
+                });
+            }
+            
+            // Recalculate memes per second after loading
+            recalculateMemesPerSecond();
             
             // Calculate offline progress
-            if (parsedData.lastSaved) {
+            if (parsedData.lastSaved && gameState.memesPerSecond > 0) {
                 const offlineTime = Date.now() - parsedData.lastSaved;
-                if (offlineTime > 5000) { // Only process if at least 5 seconds passed
-                    const offlineHours = offlineTime / 1000 / 60 / 60; // Convert ms to hours
-                    const offlineProductionMultiplier = Math.min(12, offlineHours); // Cap at 12 hours
-                    const offlineProduction = gameState.memesPerSecond * offlineProductionMultiplier * 3600; // hours * seconds per hour
+                if (offlineTime > 10000) { // Only process if at least 10 seconds passed
+                    const offlineSeconds = Math.min(offlineTime / 1000, 43200); // Cap at 12 hours
+                    const heavenlyBonus = 1 + (gameState.heavenlyMemes * 0.1);
+                    const offlineProduction = gameState.memesPerSecond * heavenlyBonus * offlineSeconds;
                     
                     if (offlineProduction > 0) {
                         gameState.memes += offlineProduction;
                         gameState.totalMemes += offlineProduction;
                         gameState.generatedMemes += offlineProduction;
                         
+                        // Update building production tracking
+                        generators.forEach(generator => {
+                            if (generator.amount > 0) {
+                                const buildingContribution = generator.output * heavenlyBonus * generator.amount * offlineSeconds;
+                                if (!gameState.buildingMemesProduced[generator.id]) {
+                                    gameState.buildingMemesProduced[generator.id] = 0;
+                                }
+                                gameState.buildingMemesProduced[generator.id] += buildingContribution;
+                            }
+                        });
+                        
                         // Show offline progress popup after a short delay
                         setTimeout(() => {
-                            showOfflineProgressPopup(offlineHours, offlineProduction);
+                            showOfflineProgressPopup(offlineSeconds / 3600, offlineProduction);
                         }, 1500);
                     }
                 }
@@ -2503,8 +2445,67 @@ function loadGame() {
             console.log('Game loaded successfully!');
         } catch (error) {
             console.error('Error loading game:', error);
+            // Initialize with default values if load fails
+            initializeDefaultGameState();
         }
+    } else {
+        // No save data found, initialize with defaults
+        initializeDefaultGameState();
     }
+}
+
+// Initialize default game state
+function initializeDefaultGameState() {
+    gameState = {
+        memes: 0,
+        memesPerClick: 1,
+        memesPerSecond: 0,
+        totalMemes: 0,
+        clickedMemes: 0,
+        generatedMemes: 0,
+        achievements: {},
+        gameStartTime: Date.now(),
+        lastSaveTime: Date.now(),
+        boostActive: false,
+        boostEndTime: 0,
+        boostMultiplier: 2,
+        boostDuration: 30,
+        boostCooldown: false,
+        totalBuildings: 0,
+        boostActivations: 0,
+        minigamesPlayed: 0,
+        minigamesTypes: new Set(),
+        memoryGamesWon: 0,
+        highestReactionScore: 0,
+        perfectTriviaGames: 0,
+        clickedDuringBoost: false,
+        clicksWithoutBuying: 0,
+        buildingClickBonus: 0,
+        platform: 'browser',
+        hasSeenTitleScreen: false,
+        heavenlyMemes: 0,
+        ascensions: 0,
+        lastAscensionTime: 0,
+        lastFrameTime: 0,
+        fpsUpdateInterval: 1000,
+        lastFpsUpdate: 0,
+        frameCount: 0,
+        fps: 60,
+        targetFps: 30,
+        frameInterval: 1000 / 30,
+        lastMpsUpdate: 0,
+        vibrationEnabled: true,
+        smoothMode: false,
+        notificationsEnabled: true,
+        buildingMemesProduced: {}
+    };
+    
+    // Initialize building memes produced
+    generators.forEach(gen => {
+        if (!gameState.buildingMemesProduced[gen.id]) {
+            gameState.buildingMemesProduced[gen.id] = 0;
+        }
+    });
 }
 
 // Function to show offline progress popup
@@ -2540,316 +2541,18 @@ function showOfflineProgressPopup(hours, memes) {
     // Show the popup with animation
     setTimeout(() => {
         offlinePopup.classList.add('show');
-        vibrate(200); // Vibrate to indicate it's on
+        vibrate(200); // Vibrate to indicate return
     }, 500);
     
     // Add event listener to close button
     const closeButton = offlinePopup.querySelector('.offline-close');
-    if (closeButton) {
-        closeButton.addEventListener('click', () => {
-            offlinePopup.classList.remove('show');
-            setTimeout(() => {
-                offlinePopup.remove();
-            }, 300);
-        });
-    }
+    closeButton.addEventListener('click', () => {
+        offlinePopup.classList.remove('show');
+        setTimeout(() => {
+            offlinePopup.remove();
+        }, 300);
+    });
 }
 
-// Initialize game when DOM is loaded
+// Initialize the game when DOM is loaded
 document.addEventListener('DOMContentLoaded', init);
-
-// Voice command functions
-function initVoiceCommands() {
-    // Initialize voice recognition if available
-    if (window.SpeechRecognition || window.webkitSpeechRecognition) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        gameState.recognition = new SpeechRecognition();
-        gameState.recognition.continuous = false;
-        gameState.recognition.interimResults = false;
-        gameState.recognition.lang = 'en-US';
-        
-        // Set up recognition handlers
-        gameState.recognition.onresult = handleVoiceCommand;
-        gameState.recognition.onerror = handleVoiceError;
-        
-        console.log("Voice commands initialized");
-    } else {
-        console.log("Speech recognition not supported in this browser");
-        showVoiceCommandFeedback("Voice commands not supported in this browser", "error");
-    }
-}
-
-function stopVoiceCommands() {
-    // Stop any active voice recognition
-    if (gameState.recognition) {
-        try {
-            gameState.recognition.abort();
-            console.log("Voice commands stopped");
-        } catch (e) {
-            console.error("Error stopping voice commands:", e);
-        }
-    }
-    
-    // Clear any voice command feedback
-    if (gameState.voiceCommandTimeout) {
-        clearTimeout(gameState.voiceCommandTimeout);
-    }
-    
-    gameState.listenForCommands = false;
-}
-
-function listenForVoiceCommand(showFeedback = true) {
-    if (!gameState.voiceCommandsEnabled || !gameState.recognition) return;
-    
-    try {
-        gameState.recognition.start();
-        gameState.listenForCommands = true;
-        
-        if (showFeedback) {
-            showVoiceCommandFeedback("Listening for commands...", "listening");
-        }
-        
-        console.log("Voice recognition started");
-    } catch (e) {
-        console.error("Error starting voice recognition:", e);
-        gameState.recognition.stop();
-        setTimeout(() => listenForVoiceCommand(showFeedback), 200);
-    }
-}
-
-function handleVoiceCommand(event) {
-    if (!event.results || !event.results.length) return;
-    
-    const transcript = event.results[0][0].transcript.toLowerCase().trim();
-    gameState.lastVoiceCommand = transcript;
-    
-    console.log("Voice command received:", transcript);
-    showVoiceCommandFeedback(`Command: "${transcript}"`, "received");
-    
-    // Process commands
-    if (transcript.includes("click") || transcript.includes("tap") || transcript.includes("meme")) {
-        // Click the meme button
-        clickMeme();
-        showVoiceCommandFeedback("Clicking meme!", "success");
-    } else if (transcript.includes("boost") || transcript.includes("activate")) {
-        // Activate boost
-        if (!gameState.boostCooldown && !gameState.boostActive) {
-            activateBoost();
-            showVoiceCommandFeedback("Boost activated!", "success");
-        } else {
-            showVoiceCommandFeedback("Boost not available right now", "error");
-        }
-    } else if (transcript.includes("navigate") || transcript.includes("go to")) {
-        // Navigation commands
-        navigateByVoice(transcript);
-    } else if (transcript.includes("buy") || transcript.includes("purchase")) {
-        // Purchase commands
-        purchaseByVoice(transcript);
-    } else {
-        showVoiceCommandFeedback("Command not recognized", "error");
-    }
-    
-    // Restart listening after processing the command
-    setTimeout(() => {
-        if (gameState.voiceCommandsEnabled) {
-            listenForVoiceCommand(false);
-        }
-    }, 1000);
-}
-
-function handleVoiceError(event) {
-    console.error("Voice recognition error:", event.error);
-    
-    if (event.error === 'no-speech') {
-        showVoiceCommandFeedback("No speech detected. Try again?", "info");
-    } else if (event.error === 'aborted') {
-        // Do nothing for aborted, this is normal when stopping
-    } else {
-        showVoiceCommandFeedback(`Error: ${event.error}`, "error");
-    }
-    
-    gameState.listenForCommands = false;
-}
-
-function navigateByVoice(transcript) {
-    const tabNames = {
-        "home": "main-game",
-        "main": "main-game",
-        "game": "main-game",
-        "building": "buildings",
-        "buildings": "buildings",
-        "generator": "buildings",
-        "generators": "buildings",
-        "heaven": "meme-haven",
-        "haven": "meme-haven",
-        "prestige": "meme-haven",
-        "stats": "statistics",
-        "statistics": "statistics",
-        "stat": "statistics",
-        "history": "history",
-        "mini": "mini-games",
-        "minigame": "mini-games",
-        "mini game": "mini-games",
-        "mini games": "mini-games",
-        "games": "mini-games",
-        "setting": "settings",
-        "settings": "settings",
-        "option": "settings"
-    };
-    
-    let targetTab = null;
-    
-    // Check if the transcript matches any tab name
-    for (const [key, value] of Object.entries(tabNames)) {
-        if (transcript.includes(key)) {
-            targetTab = value;
-            break;
-        }
-    }
-    
-    if (targetTab) {
-        // Find the mobile nav item
-        const navItem = document.querySelector(`.mobile-nav-item[data-tab="${targetTab}"]`);
-        if (navItem) {
-            navItem.click();
-            showVoiceCommandFeedback(`Navigating to ${targetTab.replace('-', ' ')}`, "success");
-        } else {
-            showVoiceCommandFeedback("Couldn't find that tab", "error");
-        }
-    } else {
-        showVoiceCommandFeedback("Unknown navigation target", "error");
-    }
-}
-
-function purchaseByVoice(transcript) {
-    // Only process purchase commands in the buildings tab
-    const currentTab = document.querySelector('.tab-content.active');
-    if (!currentTab || currentTab.id !== 'buildings') {
-        showVoiceCommandFeedback("Go to the Buildings tab to make purchases", "info");
-        return;
-    }
-    
-    // Try to determine which building to buy
-    let targetBuilding = null;
-    
-    // Map of building keywords to their IDs
-    const buildingKeywords = {
-        "doge": "doge",
-        "grumpy": "cat",
-        "cat": "cat", 
-        "rick": "rickroll",
-        "rickroll": "rickroll",
-        "roll": "rickroll",
-        "distracted": "distracted",
-        "boyfriend": "distracted",
-        "stonk": "stonks",
-        "stonks": "stonks",
-        "pepe": "pepe",
-        "rare": "pepe",
-        "chad": "chad",
-        "giga": "chad",
-        "dance": "gabe",
-        "dancing": "gabe",
-        "gabe": "gabe",
-        "kermit": "kermit",
-        "tea": "kermit",
-        "disaster": "disaster",
-        "girl": "disaster",
-        "hide": "hide",
-        "harold": "hide",
-        "pain": "hide",
-        "moth": "moth",
-        "lamp": "moth",
-        "beans": "beans",
-        "coffin": "coffin",
-        "dance": "coffin",
-        "wojak": "wojak",
-        "galaxy": "galaxy",
-        "brain": "galaxy",
-        "vibe": "vibecheck",
-        "check": "vibecheck",
-        "nyan": "nyancat",
-        "cat": "nyancat",
-        "rock": "therock",
-        "eyebrow": "therock",
-        "spider": "spiderman",
-        "spiderman": "spiderman",
-        "spidermen": "spiderman",
-        "bonk": "bonk",
-        "cheems": "bonk",
-        "jafet": "jafet",
-        "kratos": "kratos",
-        "boy": "kratos",
-        "zeus": "zeus"
-    };
-    
-    for (const [keyword, id] of Object.entries(buildingKeywords)) {
-        if (transcript.includes(keyword)) {
-            targetBuilding = id;
-            break;
-        }
-    }
-    
-    // If a specific building wasn't identified, try to buy the first affordable one
-    if (!targetBuilding) {
-        if (transcript.includes("any") || transcript.includes("first") || transcript.includes("affordable")) {
-            const buyButtons = document.querySelectorAll('.building-buy-button:not([disabled])');
-            if (buyButtons.length > 0) {
-                buyButtons[0].click();
-                showVoiceCommandFeedback("Buying first affordable building", "success");
-                return;
-            } else {
-                showVoiceCommandFeedback("No affordable buildings available", "error");
-                return;
-            }
-        } else {
-            showVoiceCommandFeedback("Please specify which building to buy", "info");
-            return;
-        }
-    }
-    
-    // Find the button for the target building
-    const buyButton = document.querySelector(`.building-buy-button[data-id="${targetBuilding}"]`);
-    if (buyButton) {
-        if (!buyButton.disabled) {
-            buyButton.click();
-            showVoiceCommandFeedback(`Purchasing ${generators.find(g => g.id === targetBuilding).name}`, "success");
-        } else {
-            showVoiceCommandFeedback("Not enough memes to buy that building", "error");
-        }
-    } else {
-        showVoiceCommandFeedback("Couldn't find that building", "error");
-    }
-}
-
-function showVoiceCommandFeedback(message, type = "info") {
-    // Create feedback element if it doesn't exist
-    let feedbackEl = document.querySelector('.voice-command-feedback');
-    if (!feedbackEl) {
-        feedbackEl = document.createElement('div');
-        feedbackEl.className = 'voice-command-feedback';
-        document.body.appendChild(feedbackEl);
-    }
-    
-    // Clear any existing timeout
-    if (gameState.voiceCommandTimeout) {
-        clearTimeout(gameState.voiceCommandTimeout);
-    }
-    
-    // Set appropriate class based on feedback type
-    feedbackEl.className = 'voice-command-feedback';
-    feedbackEl.classList.add(`voice-feedback-${type}`);
-    
-    // Set message
-    feedbackEl.textContent = message;
-    
-    // Show feedback
-    feedbackEl.classList.add('show');
-    
-    // Hide after delay (except for 'listening' type)
-    if (type !== 'listening') {
-        gameState.voiceCommandTimeout = setTimeout(() => {
-            feedbackEl.classList.remove('show');
-        }, 3000);
-    }
-}

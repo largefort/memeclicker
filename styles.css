@@ -100,7 +100,7 @@
     position: absolute;
     top: -20px;
     right: -30px;
-    background: #111111;
+    background: #4285f4;
     color: #fff;
     font-size: 1rem;
     padding: 5px 10px;
@@ -119,6 +119,10 @@
 
 .android-icon {
     font-size: 1.4rem;
+}
+
+.android-badge .android-icon::before {
+    content: "🌐";
 }
 
 .title-buttons {
@@ -333,7 +337,7 @@ h1::after, h2::after {
     position: absolute;
     top: -15px;
     right: -50px;
-    background: linear-gradient(135deg, #a4c639 0%, #8BC34A 100%);
+    background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
     color: #fff;
     font-size: 0.9rem;
     padding: 4px 10px;
@@ -348,12 +352,12 @@ h1::after, h2::after {
 }
 
 .android-edition-tag::before {
-    content: "🤖";
+    content: "🌐";
     margin-right: 4px;
 }
 
 .android-edition-tag::after {
-    content: "📱";
+    content: "💻";
     margin-left: 4px;
 }
 
@@ -663,7 +667,7 @@ main {
     25% { transform: translate(-50%, -50%) rotate(2deg); }
     50% { transform: translate(-50%, -50%) rotate(-2deg); }
     75% { transform: translate(-50%, -50%) rotate(1deg); }
-    !00% { transform: translate(-50%, -50%) rotate(-1deg); }
+    100% { transform: translate(-50%, -50%) rotate(-1deg); }
 }
 
 .click-particle-container {
@@ -710,22 +714,11 @@ main {
     box-shadow: 0 6px 15px rgba(255, 75, 75, 0.4);
 }
 
-.meme-button.mlg-shake {
-    animation: mlgShake 0.5s linear;
-}
-
-@keyframes mlgShake {
-    0% { transform: translate(1px, 1px) rotate(0deg); }
-    10% { transform: translate(-1px, -2px) rotate(-1deg); }
-    20% { transform: translate(-3px, 0px) rotate(1deg); }
-    30% { transform: translate(3px, 2px) rotate(0deg); }
-    40% { transform: translate(1px, -1px) rotate(1deg); }
-    50% { transform: translate(-1px, 2px) rotate(-1deg); }
-    60% { transform: translate(-3px, 1px) rotate(0deg); }
-    70% { transform: translate(3px, 1px) rotate(-1deg); }
-    80% { transform: translate(-1px, -1px) rotate(1deg); }
-    90% { transform: translate(1px, 2px) rotate(0deg); }
-    100% { transform: translate(1px, -2px) rotate(-1deg); }
+.boost-button:disabled {
+    background: linear-gradient(to bottom, #ccc, #999);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
 .boost-timer {
@@ -733,15 +726,6 @@ main {
     font-size: 0.9rem;
     font-weight: bold;
     color: #ff6b6b;
-}
-
-.upgrades-indicator {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    transform: scale(0.8);
-    transition: transform 0.2s;
-    z-index: 2;
 }
 
 .upgrades-container {
@@ -898,6 +882,7 @@ h2 {
     width: 20px;
     height: 20px;
     border-top: 3px solid rgba(164, 198, 57, 0.3);
+    border-left: 3px solid rgba(164, 198, 57, 0.3);
     z-index: 1;
 }
 
@@ -2120,7 +2105,7 @@ h2 {
 }
 
 .history-meme {
-    background: linear-gradient(135deg, rgba(255, 204, 0, 0.2) 0%, rgba(255, 107, 107, 0.2) 100%);
+    background: linear-gradient(135deg, rgba(255, 204, 0, 0.2) 0%, rgba(164, 198, 57, 0.2) 100%);
     padding: 12px;
     margin: 10px 0;
     border-radius: 10px;
@@ -2524,88 +2509,6 @@ h2 {
     font-family: monospace;
 }
 
-.voice-command-feedback {
-    position: fixed;
-    top: 15px;
-    right: 15px;
-    background: rgba(0, 0, 0, 0.8);
-    color: #fff;
-    padding: 12px 20px;
-    border-radius: 30px;
-    font-size: 1rem;
-    z-index: 1001;
-    opacity: 0;
-    transform: translateY(-20px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    pointer-events: none;
-    max-width: 80%;
-    text-align: center;
-    white-space: pre-line;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.voice-command-feedback.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.voice-feedback-listening {
-    background: linear-gradient(135deg, #a4c639, #8BC34A);
-    border-left: 5px solid #4CAF50;
-    animation: pulse 1.5s infinite;
-}
-
-.voice-feedback-received {
-    background: rgba(0, 0, 0, 0.8);
-}
-
-.voice-feedback-success {
-    background: linear-gradient(135deg, #4CAF50, #2E7D32);
-    border-left: 5px solid #1B5E20;
-}
-
-.voice-feedback-error {
-    background: linear-gradient(135deg, #F44336, #D32F2F);
-    border-left: 5px solid #B71C1C;
-}
-
-.voice-feedback-info {
-    background: linear-gradient(135deg, #2196F3, #1976D2);
-    border-left: 5px solid #0D47A1;
-}
-
-.voice-command-test {
-    background: linear-gradient(to bottom, #a4c639, #8BC34A);
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 15px;
-    transition: all 0.2s;
-    display: block;
-    width: 100%;
-    max-width: 250px;
-    margin: 15px auto 0;
-    box-shadow: 0 4px 10px rgba(164, 198, 57, 0.3);
-}
-
-.voice-command-test:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(164, 198, 57, 0.4);
-}
-
-.voice-command-test:active {
-    transform: translateY(1px);
-}
-
-@keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(164, 198, 57, 0.4); }
-    70% { box-shadow: 0 0 0 10px rgba(164, 198, 57, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(164, 198, 57, 0); }
-}
-
 .setting-option {
     display: flex;
     align-items: center;
@@ -2832,7 +2735,7 @@ input:checked + .slider:before {
     color: white;
     text-decoration: none;
     padding: 10px 15px;
-    margin-top: 20px;
+    margin-top: 15px;
     border-radius: 8px;
     font-weight: bold;
     transition: all 0.2s;
@@ -2875,6 +2778,11 @@ input:checked + .slider:before {
     animation: mlgShake 0.5s linear;
     mix-blend-mode: screen;
     opacity: 0.7;
+}
+
+/* Additional shake for meme button during MLG effect */
+.meme-button.mlg-shake {
+    animation: mlgShake 0.5s linear;
 }
 
 /* Autosave Indicator Styles */
@@ -2937,6 +2845,19 @@ input:checked + .slider:before {
     pointer-events: none;
 }
 
+.offline-progress-popup.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+}
+
+.offline-progress-popup h3 {
+    color: #ff6b6b;
+    margin-bottom: 15px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.8rem;
+}
+
 .offline-memes {
     background: linear-gradient(135deg, rgba(255, 204, 0, 0.2) 0%, rgba(164, 198, 57, 0.2) 100%);
     padding: 15px;
@@ -2975,19 +2896,6 @@ input:checked + .slider:before {
     transform: translateY(1px);
 }
 
-.offline-progress-popup.show {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-    pointer-events: auto;
-}
-
-.offline-progress-popup h3 {
-    color: #ff6b6b;
-    margin-bottom: 15px;
-    font-family: 'Fredoka One', cursive;
-    font-size: 1.8rem;
-}
-
 .bonus-tooltip {
     position: relative;
     cursor: help;
@@ -3017,4 +2925,655 @@ input:checked + .slider:before {
     padding: 12px;
     border-radius: 8px;
     font-size: 0.9rem;
+}
+
+/* High Resolution Display Support (2560x1600 and similar) */
+@media (min-width: 2560px) and (min-height: 1600px) {
+    .game-container {
+        max-width: 2200px;
+        padding: 40px;
+        padding-bottom: 100px;
+    }
+    
+    header {
+        margin-bottom: 50px;
+    }
+    
+    h1 {
+        font-size: 4rem;
+        margin-bottom: 25px;
+    }
+    
+    .android-edition-tag {
+        font-size: 1.2rem;
+        padding: 6px 15px;
+        right: -60px;
+        top: -20px;
+    }
+    
+    .stats {
+        gap: 50px;
+        font-size: 1.5rem;
+        padding: 20px 30px;
+        border-radius: 40px;
+        margin-bottom: 30px;
+    }
+    
+    .meme-count::before, .memes-per-second::before {
+        font-size: 2rem;
+    }
+    
+    #meme-counter, #mps-counter {
+        font-size: 1.6rem;
+        padding: 0 8px;
+    }
+    
+    .game-tabs {
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+    
+    .tab-button {
+        padding: 15px 30px;
+        font-size: 1.2rem;
+        border-radius: 35px;
+    }
+    
+    .clicker-area {
+        max-width: 700px;
+        padding: 50px;
+        border-radius: 30px;
+    }
+    
+    .meme-button {
+        width: 250px;
+        height: 250px;
+    }
+    
+    .click-text {
+        font-size: 1.6rem;
+        padding: 12px 30px;
+        border-radius: 40px;
+        margin-top: 35px;
+    }
+    
+    .boost-container {
+        margin-top: 30px;
+    }
+    
+    .boost-button {
+        padding: 15px 30px;
+        font-size: 1.2rem;
+        border-radius: 40px;
+    }
+    
+    .boost-timer {
+        font-size: 1.1rem;
+        margin-top: 12px;
+    }
+    
+    .buildings-container, .stats-container, .meme-haven-container, 
+    .minigames-container, .settings-container, .history-container {
+        padding: 40px;
+        border-radius: 30px;
+    }
+    
+    .buildings-grid {
+        grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+        gap: 25px;
+        margin-top: 30px;
+    }
+    
+    .building-card {
+        padding: 25px;
+        border-radius: 20px;
+    }
+    
+    .building-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 2.2rem;
+        margin-right: 20px;
+    }
+    
+    .building-details h3 {
+        font-size: 1.6rem;
+        margin-bottom: 8px;
+    }
+    
+    .building-details p {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+    }
+    
+    .building-stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+        font-size: 1.1rem;
+    }
+    
+    .building-buy-button {
+        padding: 12px 20px;
+        font-size: 1.1rem;
+        border-radius: 12px;
+    }
+    
+    .info-button {
+        width: 32px;
+        height: 32px;
+        font-size: 20px;
+        top: 15px;
+        right: 15px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+        gap: 30px;
+        margin-top: 30px;
+    }
+    
+    .stat-box {
+        padding: 30px;
+        border-radius: 20px;
+    }
+    
+    .stat-box h3 {
+        font-size: 1.6rem;
+        margin-bottom: 20px;
+    }
+    
+    .stat-box p {
+        margin: 15px 0;
+        padding: 12px 15px;
+        border-radius: 12px;
+        font-size: 1.1rem;
+    }
+    
+    .minigame-grid {
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 30px;
+    }
+    
+    .minigame-card {
+        padding: 30px;
+        border-radius: 20px;
+    }
+    
+    .minigame-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+    
+    .minigame-card p {
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+    }
+    
+    .minigame-button {
+        padding: 12px 30px;
+        font-size: 1.1rem;
+        border-radius: 25px;
+    }
+    
+    .minigame-area {
+        padding: 40px;
+        border-radius: 30px;
+        margin-top: 30px;
+        min-height: 600px;
+    }
+    
+    .memory-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin: 30px 0;
+    }
+    
+    .memory-card {
+        height: 140px;
+        border-radius: 15px;
+    }
+    
+    .card-front, .card-back {
+        border-radius: 15px;
+        font-size: 1.4rem;
+    }
+    
+    .card-back {
+        font-size: 2.5rem;
+    }
+    
+    .reaction-area {
+        height: 500px;
+        border-radius: 20px;
+        margin: 30px 0;
+    }
+    
+    #reaction-timer, #reaction-score {
+        font-size: 1.8rem;
+        padding: 8px 20px;
+        border-radius: 25px;
+        top: 15px;
+    }
+    
+    #reaction-timer {
+        left: 15px;
+    }
+    
+    #reaction-score {
+        right: 15px;
+    }
+    
+    .reaction-target {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .trivia-container {
+        padding: 30px;
+        border-radius: 20px;
+        margin: 30px 0;
+    }
+    
+    #trivia-question {
+        font-size: 1.6rem;
+        margin-bottom: 30px;
+    }
+    
+    #trivia-options {
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+    
+    .trivia-option {
+        padding: 20px;
+        border-radius: 15px;
+        font-size: 1.2rem;
+    }
+    
+    #trivia-result {
+        font-size: 1.4rem;
+        padding: 15px;
+        margin-top: 20px;
+        border-radius: 15px;
+    }
+    
+    .meme-haven-stats {
+        padding: 30px;
+        border-radius: 20px;
+        margin-bottom: 35px;
+        max-width: 700px;
+    }
+    
+    .heavenly-meme-counter, .potential-memes, .meme-multiplier {
+        font-size: 1.4rem;
+    }
+    
+    .heavenly-meme-counter span::before, 
+    .potential-memes span::before, 
+    .meme-multiplier span::before {
+        font-size: 1.8rem;
+        margin-right: 15px;
+    }
+    
+    .prestige-requirements {
+        max-width: 700px;
+        margin-bottom: 35px;
+    }
+    
+    .requirement-text {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+    }
+    
+    .progress-container {
+        height: 25px;
+        border-radius: 15px;
+    }
+    
+    .ascend-button {
+        padding: 20px 50px;
+        font-size: 1.5rem;
+        border-radius: 60px;
+        margin-bottom: 30px;
+    }
+    
+    .meme-haven-warning {
+        padding: 30px;
+        border-radius: 15px;
+        margin-top: 30px;
+        max-width: 700px;
+    }
+    
+    .meme-haven-warning p {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+    }
+    
+    .ascension-confirm {
+        gap: 20px;
+        margin-top: 20px;
+    }
+    
+    .confirm-ascend-button, .cancel-ascend-button {
+        padding: 15px 30px;
+        font-size: 1.1rem;
+        border-radius: 12px;
+    }
+    
+    .settings-box {
+        padding: 30px;
+        border-radius: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .settings-box h3 {
+        font-size: 1.6rem;
+        margin-bottom: 20px;
+    }
+    
+    .settings-box p {
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+    }
+    
+    .setting-option {
+        margin: 20px 0;
+        font-size: 1.1rem;
+    }
+    
+    .switch {
+        width: 80px;
+        height: 44px;
+    }
+    
+    .slider:before {
+        height: 36px;
+        width: 36px;
+        left: 4px;
+        bottom: 4px;
+    }
+    
+    input:checked + .slider:before {
+        transform: translateX(36px);
+    }
+    
+    .reset-button {
+        padding: 15px 30px;
+        font-size: 1.1rem;
+        border-radius: 12px;
+        margin-top: 20px;
+    }
+    
+    .reset-confirm {
+        padding: 20px;
+        margin-top: 20px;
+        border-radius: 15px;
+    }
+    
+    .reset-yes, .reset-no {
+        padding: 12px 20px;
+        font-size: 1.1rem;
+        border-radius: 10px;
+    }
+    
+    .encyclopedia-link {
+        padding: 15px 25px;
+        margin-top: 20px;
+        font-size: 1.1rem;
+        border-radius: 12px;
+    }
+    
+    .achievement-popup {
+        padding: 20px 35px;
+        border-radius: 20px;
+        min-width: 350px;
+        bottom: 50px;
+    }
+    
+    .achievement-content h3 {
+        font-size: 2rem;
+        margin-bottom: 12px;
+    }
+    
+    .achievement-popup p {
+        font-size: 1.2rem;
+    }
+    
+    .text-particle.number-effect {
+        font-size: 2.2rem;
+    }
+    
+    .text-particle.emoji-effect {
+        font-size: 2.5rem;
+    }
+    
+    .mlg-text-particle {
+        font-size: 3rem;
+    }
+    
+    .timeline {
+        max-width: 1200px;
+        padding: 30px 0;
+    }
+    
+    .timeline::before {
+        width: 8px;
+        left: 60px;
+        border-radius: 15px;
+    }
+    
+    .timeline-item {
+        padding: 15px 60px 15px 120px;
+        margin-bottom: 40px;
+    }
+    
+    .timeline-item::after {
+        width: 25px;
+        height: 25px;
+        left: 51px;
+        top: 20px;
+        border: 5px solid #ffcc00;
+    }
+    
+    .timeline-date {
+        left: 0;
+        top: 20px;
+        font-size: 1.4rem;
+        width: 50px;
+    }
+    
+    .timeline-content {
+        padding: 30px;
+        border-radius: 15px;
+    }
+    
+    .timeline-content h3 {
+        font-size: 1.6rem;
+        margin-bottom: 15px;
+    }
+    
+    .timeline-content p {
+        font-size: 1.1rem;
+        margin: 15px 0;
+        line-height: 1.6;
+    }
+    
+    .history-quote {
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 12px;
+        font-size: 1.1rem;
+    }
+    
+    .history-quote::before {
+        font-size: 4rem;
+        left: 8px;
+        top: -15px;
+    }
+    
+    .history-meme {
+        padding: 18px;
+        margin: 15px 0;
+        border-radius: 15px;
+        font-size: 1.3rem;
+    }
+    
+    .meme-future-note {
+        padding: 20px;
+        border-radius: 15px;
+        margin-top: 20px;
+        font-size: 1.1rem;
+    }
+    
+    .history-footer {
+        margin-top: 40px;
+        padding: 30px;
+        border-radius: 15px;
+        font-size: 1.1rem;
+    }
+    
+    .modal-overlay .building-info-modal {
+        max-width: 500px;
+        width: 450px;
+        padding: 30px;
+        border-radius: 20px;
+    }
+    
+    .building-info-header {
+        margin-bottom: 20px;
+    }
+    
+    .modal-building-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.6rem;
+        margin-right: 15px;
+    }
+    
+    .modal-building-title h3 {
+        font-size: 1.4rem;
+        margin-bottom: 5px;
+    }
+    
+    .modal-building-title p {
+        font-size: 1rem;
+    }
+    
+    .info-stat {
+        padding: 12px 0;
+        font-size: 1.1rem;
+    }
+    
+    .info-produced-container {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 12px;
+    }
+    
+    .info-produced-title {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+    
+    .info-produced-value {
+        font-size: 1.4rem;
+        padding: 12px;
+        border-radius: 8px;
+    }
+    
+    .close-modal {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+        top: 15px;
+        right: 15px;
+    }
+    
+    .offline-progress-popup {
+        max-width: 500px;
+        width: 450px;
+        padding: 35px;
+        border-radius: 25px;
+    }
+    
+    .offline-progress-popup h3 {
+        font-size: 2.2rem;
+        margin-bottom: 20px;
+    }
+    
+    .offline-progress-popup p {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+    }
+    
+    .offline-memes {
+        padding: 20px;
+        border-radius: 20px;
+        margin: 25px 0;
+        gap: 15px;
+        font-size: 1.2rem;
+    }
+    
+    .offline-memes .meme-amount {
+        font-size: 1.8rem;
+    }
+    
+    .offline-close {
+        padding: 15px 35px;
+        font-size: 1.2rem;
+        border-radius: 35px;
+        margin-top: 20px;
+    }
+    
+    .autosave-indicator {
+        top: 20px;
+        left: 20px;
+        padding: 12px 20px;
+        font-size: 1.1rem;
+        border-radius: 25px;
+    }
+    
+    .autosave-indicator::before {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+/* Ultra-wide display optimizations (3440x1440, 5120x1440, etc.) */
+@media (min-width: 3440px) {
+    .game-container {
+        max-width: 2800px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .tab-content.active {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+        gap: 40px;
+        align-items: start;
+    }
+    
+    .buildings-grid {
+        grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+    }
+    
+    .minigame-grid {
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    }
+    
+    main {
+        grid-column: 1 / -1;
+        justify-self: center;
+    }
+    
+    .clicker-area {
+        max-width: 800px;
+    }
 }
