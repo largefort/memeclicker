@@ -521,6 +521,14 @@ const achievements = [
     { id: 'all_buildings_10000', name: 'Meme Collection Omnipotence', requirement: () => generators.every(g => g.amount >= 10000), message: 'Have at least 10,000 of each generator type!' }
 ];
 
+// Add 400 auto-generated achievements
+(function(){
+    const add=(id,n,th,fn,msg)=>achievements.push({id,name:n,requirement:()=>fn(th),message:msg});
+    for(let i=1;i<=100;i++){let th=i*200; add(`streak_auto_${i}`,`Click Streak ${th}`,th,t=>gameState.clicksWithoutBuying>=t,`Click ${th} times without buying any generators!`);}
+    for(let i=1;i<=100;i++){let th=Math.floor(1e6*Math.pow(2,i/2)); add(`total_memes_auto_${i}`,`Meme Milestone ${th}`,th,t=>gameState.totalMemes>=t,`Create ${th.toLocaleString()} total memes!`);}
+    for(let i=1;i<=100;i++){let th=Math.floor(100*Math.pow(2,i/2)); add(`mps_auto_${i}`,`Efficiency ${th}/s`,th,t=>gameState.memesPerSecond>=t,`Reach ${th.toLocaleString()} memes per second!`);}
+    for(let i=1;i<=100;i++){let th=i*250; add(`buildings_auto_${i}`,`Constructor ${th}`,th,t=>gameState.totalBuildings>=t,`Own ${th.toLocaleString()} total buildings!`);}
+})();
 // Mini-games configuration
 const miniGames = {
     memory: {
@@ -902,13 +910,9 @@ function init() {
 }
 
 // Browser-compatible vibration utility function
-function vibrate(duration) {
+function vibrate(pattern) {
     if (!gameState.vibrationEnabled) return;
-    
-    // Use browser vibration API if available
-    if ('vibrate' in navigator) {
-        navigator.vibrate(duration);
-    }
+    if ('vibrate' in navigator) navigator.vibrate(pattern);
 }
 
 // Main game loop using requestAnimationFrame for consistent fps
@@ -1962,7 +1966,6 @@ function performAscension() {
     updateCounters();
     updateBuildingInfo();
     updateStatistics();
-    renderGenerators();
     renderBuildingsTab();
     
     // Safely update heaven info
@@ -2092,7 +2095,6 @@ function resetGame() {
     updateCounters();
     updateBuildingInfo();
     updateStatistics();
-    renderGenerators();
     renderBuildingsTab();
     updateHeavenlyMemes();
     saveGame();
@@ -2413,32 +2415,19 @@ function loadGame() {
             // Calculate offline progress
             if (parsedData.lastSaved && gameState.memesPerSecond > 0) {
                 const offlineTime = Date.now() - parsedData.lastSaved;
-                if (offlineTime > 10000) { // Only process if at least 10 seconds passed
-                    const offlineSeconds = Math.min(offlineTime / 1000, 43200); // Cap at 12 hours
-                    const heavenlyBonus = 1 + (gameState.heavenlyMemes * 0.1);
-                    const offlineProduction = gameState.memesPerSecond * heavenlyBonus * offlineSeconds;
-                    
-                    if (offlineProduction > 0) {
-                        gameState.memes += offlineProduction;
-                        gameState.totalMemes += offlineProduction;
-                        gameState.generatedMemes += offlineProduction;
-                        
-                        // Update building production tracking
-                        generators.forEach(generator => {
-                            if (generator.amount > 0) {
-                                const buildingContribution = generator.output * heavenlyBonus * generator.amount * offlineSeconds;
-                                if (!gameState.buildingMemesProduced[generator.id]) {
-                                    gameState.buildingMemesProduced[generator.id] = 0;
-                                }
-                                gameState.buildingMemesProduced[generator.id] += buildingContribution;
-                            }
-                        });
-                        
-                        // Show offline progress popup after a short delay
-                        setTimeout(() => {
-                            showOfflineProgressPopup(offlineSeconds / 3600, offlineProduction);
-                        }, 1500);
-                    }
+                if (offlineTime > 10000) {
+                    const offlineSeconds = Math.min(offlineTime / 1000, 43200);
+                    const offlineProduction = gameState.memesPerSecond * offlineSeconds;
+                    gameState.memes += offlineProduction; gameState.totalMemes += offlineProduction; gameState.generatedMemes += offlineProduction;
+                    const baseSum = generators.reduce((t,g)=>t + g.output * g.amount, 0) || 1;
+                    const scale = gameState.memesPerSecond / baseSum;
+                    generators.forEach(g=>{
+                        if (g.amount>0) {
+                            const contribution = g.output * g.amount * scale * offlineSeconds;
+                            gameState.buildingMemesProduced[g.id] = (gameState.buildingMemesProduced[g.id]||0) + contribution;
+                        }
+                    });
+                    setTimeout(()=>{ showOfflineProgressPopup(offlineSeconds / 3600, offlineProduction); },1500);
                 }
             }
             

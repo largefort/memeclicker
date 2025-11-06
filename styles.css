@@ -335,20 +335,23 @@ h1::after, h2::after {
 
 .android-edition-tag {
     position: absolute;
-    top: -15px;
-    right: -50px;
+    top: 0;
+    right: 0;
+    transform: none;
+    z-index: 1000;
     background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
     color: #fff;
     font-size: 0.9rem;
-    padding: 4px 10px;
+    padding: 4px 15px;
     border-radius: 10px;
-    transform: rotate(5deg);
     box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
     font-family: 'Roboto', sans-serif;
     text-shadow: none;
     border: 2px dashed #fff;
     text-transform: uppercase;
     font-weight: bold;
+    white-space: nowrap;
+    overflow: visible;
 }
 
 .android-edition-tag::before {
@@ -1524,8 +1527,8 @@ h2 {
     
     .android-edition-tag {
         font-size: 0.7rem;
-        right: -30px;
-        top: -10px;
+        right: 0;
+        top: 0;
     }
     
     .stats {
